@@ -151,6 +151,9 @@ class _TreeGenerator:
         ip_address = instance['PrivateIpAddress']
         return f"{_prefix(last_nodes)} {id} : {name} : {image_id} : {instance_type} : {state} : {ip_address}"
 
+    def _get_instance_security_groups(self, instance_id):
+        pass
+
     def _vpc(self):
         vpc = self._get_vpc(self._vpc_id)
         self._tree.append(self._get_vpc_description(vpc))
@@ -189,73 +192,32 @@ class _TreeGenerator:
                     f"{_prefix([False, last_subnet, True])} Instances:"
                 )
                 for j in range(instance_count):
-                    last_instance = j == instance_count - 1
+                    last_instance = j == instance_count-1
                     self._tree.append(
                         self._get_instance_description(
                             instances[j],
                             [False, True, last_subnet, last_instance]
                         )
                     )
-
-        subnet_response = self._client.describe_subnets(
-            Filters=[
-                {
-                    'Name': 'vpc-id',
-                    'Values': [
-                        self._vpc_id,
-                    ]
-                },
-            ]
-        )
-
-        subnet_count = len(subnet_response['Subnets'])
-        for i in range(subnet_count):
-            last_subnet = i == subnet_count-1
-            self._subnet(subnet_response['Subnets'][i], [last_subnet])
-
-    def _subnet(self, subnet, last_nodes):
-        subnet_id = subnet['SubnetId']
-        cidr_block = subnet['CidrBlock']
-
-        self._tree.append(f"{_prefix(last_nodes)} {subnet_id} : {cidr_block}")
-
-        instance_response = self._client.describe_instances(
-                Filters=[
-                    {
-                        'Name': 'subnet-id',
-                        'Values': [
-                            subnet_id,
+                    self._tree.append(
+                        f"{_prefix([False, True, last_subnet, last_instance, True])} Security Groups:"
+                    )
+                    security_group_count = len(instances[j]['SecurityGroups'])
+                    for k in range(security_group_count):
+                        last_security_group = k == security_group_count-1
+                        prefix = [
+                            False,
+                            True,
+                            True,
+                            last_subnet,
+                            last_instance,
+                            last_security_group
                         ]
-                    },
-                ]
-            )
-        for reservation in instance_response['Reservations']:
-            instance_count = len(reservation['Instances'])
-            for i in range(instance_count):
-                last_instance = i == instance_count-1
-                last_nodes = last_nodes.copy()
-                last_nodes.append(last_instance)
-                self._instance(reservation['Instances'][i], last_nodes)
+                        id = instances[j]['SecurityGroups'][k]['GroupId']
+                        self._tree.append(
+                            f"{_prefix(prefix)} {id}"
+                        )
 
-    def _instance(self, instance, last_nodes):
-        instance_id = instance['InstanceId']
-        prefix = _prefix(last_nodes)
-        self._tree.append(f"{prefix} {instance_id}")
-
-        security_group_count = len(instance['SecurityGroups'])
-        for i in range(security_group_count):
-            last_security_group = i == security_group_count-1
-            last_nodes = last_nodes.copy()
-            last_nodes.append(last_security_group)
-            self._security_group(instance['SecurityGroups'][i], last_nodes)
-
-    def _security_group(
-            self,
-            security_group,
-            last_nodes):
-        security_group_id = security_group['GroupId']
-        prefix = _prefix(last_nodes)
-        self._tree.append(f"{prefix} : {security_group_id}")
 
 if __name__ == "__main__":
     vpc_tree = VPCTree("vpc-0493abc0802f1f4f9")
