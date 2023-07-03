@@ -123,7 +123,33 @@ class _TreeGenerator:
         name = _get_tag_value(subnet['Tags'], 'Name')
         az = subnet['AvailabilityZone']
         cidr = subnet['CidrBlock']
-        return f"{_prefix(last_nodes)} {id} : {name} : {az} : {cidr}"
+        return f"{_prefix(last_nodes)} {id} : {name} : {az} : {cidr} "
+
+    def _get_subnet_instances(self, subnet_id):
+        response = self._client.describe_instances(
+            Filters=[
+                {
+                    'Name': 'subnet-id',
+                    'Values': [
+                        subnet_id,
+                    ]
+                },
+            ]
+        )
+        instances = []
+        for reservation in response['Reservations']:
+            instances += reservation['Instances']
+
+        return instances
+
+    def _get_instance_description(self, instance, last_nodes):
+        id = instance['InstanceId']
+        name = _get_tag_value(instance['Tags'], 'Name')
+        image_id = instance['ImageId']
+        instance_type = instance['InstanceType']
+        state = instance['State']['Name']
+        ip_address = instance['PrivateIpAddress']
+        return f"{_prefix(last_nodes)} {id} : {name} : {image_id} : {instance_type} : {state} : {ip_address}"
 
     def _vpc(self):
         vpc = self._get_vpc(self._vpc_id)
@@ -134,11 +160,11 @@ class _TreeGenerator:
         security_groups = self._get_vpc_security_groups(self._vpc_id)
         security_group_count = len(security_groups)
         for i in range(security_group_count):
-            last_resource = i == security_group_count-1
+            last_subnet = i == security_group_count-1
             self._tree.append(
                 self._get_security_group_description(
                     security_groups[i],
-                    [False, last_resource]
+                    [False, last_subnet]
                 )
             )
 
@@ -147,13 +173,29 @@ class _TreeGenerator:
         subnets = sorted(subnets, key=lambda x: x['CidrBlock'])
         subnet_count = len(subnets)
         for i in range(subnet_count):
-            last_resource = i == subnet_count-1
+            last_subnet = i == subnet_count-1
             self._tree.append(
                 self._get_subnet_description(
                     subnets[i],
-                    [False, last_resource]
+                    [False, last_subnet]
                 )
             )
+
+            instances = self._get_subnet_instances(subnets[i]['SubnetId'])
+            instances = sorted(instances, key=lambda x: x['PrivateIpAddress'])
+            instance_count = len(instances)
+            if instance_count != 0:
+                self._tree.append(
+                    f"{_prefix([False, last_subnet, True])} Instances:"
+                )
+                for j in range(instance_count):
+                    last_instance = j == instance_count - 1
+                    self._tree.append(
+                        self._get_instance_description(
+                            instances[j],
+                            [False, True, last_subnet, last_instance]
+                        )
+                    )
 
         subnet_response = self._client.describe_subnets(
             Filters=[
