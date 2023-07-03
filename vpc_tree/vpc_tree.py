@@ -88,11 +88,40 @@ class _TreeGenerator:
         return f"{vpc_id} : {name} : {cidr_block}"
 
     def _get_vpc_security_groups(self, vpc_id):
+        response = self._client.describe_security_groups(
+            Filters=[
+                {
+                    'Name': 'vpc-id',
+                    'Values': [
+                        self._vpc_id,
+                    ]
+                },
+            ]
+        )
+        return response['SecurityGroups']
 
+    def _get_security_group_description(self, security_group, last_nodes):
+        pprint.pprint(security_group)
+        security_group_id = security_group['GroupId']
+        name = security_group['GroupName']
+        return f"{_prefix(last_nodes)} {security_group_id} : {name}"
 
     def _vpc(self):
         vpc = self._get_vpc(self._vpc_id)
         self._tree.append(self._get_vpc_description(vpc))
+
+        self._tree.append(f"{TEE} Security Groups:")
+
+        security_groups = self._get_vpc_security_groups(self._vpc_id)
+        security_group_count = len(security_groups)
+        for i in range(security_group_count):
+            last_resource = i == security_group_count-1
+            self._tree.append(
+                self._get_security_group_description(
+                    security_groups[i],
+                    [False, last_resource]
+                )
+            )
 
         subnet_response = self._client.describe_subnets(
             Filters=[
