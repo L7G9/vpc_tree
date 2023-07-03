@@ -3,6 +3,7 @@
 """This module provides VPC Tree main module."""
 
 import boto3
+import pprint
 
 PIPE = "│"
 ELBOW = "└──"
@@ -32,6 +33,17 @@ def _prefix(last_nodes):
     return prefix
 
 
+def _get_tag(tags, key):
+    return next(filter(lambda d: d.get("Key") == key, tags), None)
+
+
+def _get_tag_value(tags, key):
+    tag = _get_tag(tags, key)
+    if tag is not None:
+        return tag['Value']
+    return None
+
+
 class VPCTree:
     def __init__(self, vpc_id):
         self._generator = _TreeGenerator(vpc_id)
@@ -59,24 +71,35 @@ class _TreeGenerator:
             name = get_tag_value(vpc['Tags'], 'Name')
             print(f"VPC : {name} : {vpc_id}")
 
-    def _vpc(self):
-        vpc_response = self._client.describe_vpcs(
+    def _get_vpc(self, vpc_id):
+        response = self._client.describe_vpcs(
             VpcIds=[
                 self._vpc_id,
             ],
         )
-        vpc_id = vpc_response['Vpcs'][0]['VpcId']
-        cidr_block = vpc_response['Vpcs'][0]['CidrBlock']
 
-        self._tree.append(f"{vpc_id} : {cidr_block}")
-        self._tree.append(PIPE)
+        # TODO: error check
+        return response['Vpcs'][0]
+
+    def _get_vpc_description(self, vpc):
+        vpc_id = vpc['VpcId']
+        name = _get_tag_value(vpc['Tags'], 'Name')
+        cidr_block = vpc['CidrBlock']
+        return f"{vpc_id} : {name} : {cidr_block}"
+
+    def _get_vpc_security_groups(self, vpc_id):
+
+
+    def _vpc(self):
+        vpc = self._get_vpc(self._vpc_id)
+        self._tree.append(self._get_vpc_description(vpc))
 
         subnet_response = self._client.describe_subnets(
             Filters=[
                 {
                     'Name': 'vpc-id',
                     'Values': [
-                        vpc_id,
+                        self._vpc_id,
                     ]
                 },
             ]
@@ -130,14 +153,6 @@ class _TreeGenerator:
         security_group_id = security_group['GroupId']
         prefix = _prefix(last_nodes)
         self._tree.append(f"{prefix} : {security_group_id}")
-
-
-def get_tag_value(tags, key):
-    for tag in tags:
-        if tag["Key"] == key:
-            return tag["Value"]
-    return ""
-
 
 if __name__ == "__main__":
     vpc_tree = VPCTree("vpc-0493abc0802f1f4f9")
