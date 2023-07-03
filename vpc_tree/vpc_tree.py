@@ -93,7 +93,7 @@ class _TreeGenerator:
                 {
                     'Name': 'vpc-id',
                     'Values': [
-                        self._vpc_id,
+                        vpc_id
                     ]
                 },
             ]
@@ -101,10 +101,29 @@ class _TreeGenerator:
         return response['SecurityGroups']
 
     def _get_security_group_description(self, security_group, last_nodes):
-        pprint.pprint(security_group)
         security_group_id = security_group['GroupId']
         name = security_group['GroupName']
         return f"{_prefix(last_nodes)} {security_group_id} : {name}"
+
+    def _get_vpc_subnets(self, vpc_id):
+        response = self._client.describe_subnets(
+            Filters=[
+                {
+                    'Name': 'vpc-id',
+                    'Values': [
+                        vpc_id,
+                    ]
+                },
+            ]
+        )
+        return response['Subnets']
+
+    def _get_subnet_description(self, subnet, last_nodes):
+        id = subnet['SubnetId']
+        name = _get_tag_value(subnet['Tags'], 'Name')
+        az = subnet['AvailabilityZone']
+        cidr = subnet['CidrBlock']
+        return f"{_prefix(last_nodes)} {id} : {name} : {az} : {cidr}"
 
     def _vpc(self):
         vpc = self._get_vpc(self._vpc_id)
@@ -119,6 +138,19 @@ class _TreeGenerator:
             self._tree.append(
                 self._get_security_group_description(
                     security_groups[i],
+                    [False, last_resource]
+                )
+            )
+
+        self._tree.append(f"{TEE} Subnets:")
+        subnets = self._get_vpc_subnets(self._vpc_id)
+        subnets = sorted(subnets, key=lambda x: x['CidrBlock'])
+        subnet_count = len(subnets)
+        for i in range(subnet_count):
+            last_resource = i == subnet_count-1
+            self._tree.append(
+                self._get_subnet_description(
+                    subnets[i],
                     [False, last_resource]
                 )
             )
