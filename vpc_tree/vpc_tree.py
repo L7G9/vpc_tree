@@ -68,7 +68,7 @@ class _TreeGenerator:
         vpc_response = self._client.describe_vpcs()
         for vpc in vpc_response['Vpcs']:
             vpc_id = vpc['VpcId']
-            name = get_tag_value(vpc['Tags'], 'Name')
+            name = _get_tag_value(vpc['Tags'], 'Name')
             print(f"VPC : {name} : {vpc_id}")
 
     def _get_vpc(self, vpc_id):
@@ -151,8 +151,19 @@ class _TreeGenerator:
         ip_address = instance['PrivateIpAddress']
         return f"{_prefix(last_nodes)} {id} : {name} : {image_id} : {instance_type} : {state} : {ip_address}"
 
-    def _get_instance_security_groups(self, instance_id):
-        pass
+    def _get_vpc_load_balancers(self, vpc_id):
+        client = boto3.client('elbv2')
+        response = client.describe_load_balancers()
+        load_balancers = response['LoadBalancers']
+        filtered_load_balancers = list(
+            filter(lambda d: d['VpcId'] == vpc_id, load_balancers)
+        )
+        return filtered_load_balancers
+
+    def _get_load_balancer_description(self, load_balancer, last_nodes):
+        arn = load_balancer['LoadBalancerArn']
+        name = load_balancer['LoadBalancerName']
+        return f"{_prefix(last_nodes)} {arn} : {name}"
 
     def _vpc(self):
         vpc = self._get_vpc(self._vpc_id)
@@ -217,6 +228,18 @@ class _TreeGenerator:
                         self._tree.append(
                             f"{_prefix(prefix)} {id}"
                         )
+
+        self._tree.append(f"{TEE} Load Balancers:")
+        load_balancers = self._get_vpc_load_balancers(self._vpc_id)
+        load_balancer_count = len(load_balancers)
+        for i in range(load_balancer_count):
+            last_load_balancer = i == load_balancer_count-1
+            self._tree.append(
+                self._get_load_balancer_description(
+                    load_balancers[i],
+                    [False, last_load_balancer]
+                )
+            )
 
 
 if __name__ == "__main__":
