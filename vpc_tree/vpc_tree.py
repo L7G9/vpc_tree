@@ -165,6 +165,12 @@ class _TreeGenerator:
         name = load_balancer['LoadBalancerName']
         return f"{_prefix(last_nodes)} {arn} : {name}"
 
+    def _describe_lb_az(self, availability_zone, last_nodes):
+        zone = availability_zone['ZoneName']
+        subnet_id = availability_zone['SubnetId']
+        ip_address = availability_zone['LoadBalancerAddresses'][0]['IpAddress']
+        return f"{_prefix(last_nodes) {zone} : {subnet_id} : {ip_address}"
+
     def _vpc(self):
         vpc = self._get_vpc(self._vpc_id)
         self._tree.append(self._get_vpc_description(vpc))
@@ -240,6 +246,29 @@ class _TreeGenerator:
                     [False, last_load_balancer]
                 )
             )
+            self._tree.append(f"{_prefix([False, True, last_load_balancer, True])} Availability Zones:")
+            lb_az_count = len(load_balancers[i]['availabilityZones'])
+            for j in range(lb_az_count):
+                last_lb_az = j == lb_az_count-1
+                prefix = [
+                    False,
+                    True,
+                    last_load_balancer,
+                    last_lb_az
+                ]
+                self._tree.append(self._describe_lb_az(load_balancers[i]['availability_zones'][j], prefix))
+
+            self._tree.append(f"{_prefix([False, True, last_load_balancer, True])} security Groups:")
+            lb_sg_count = len(load_balancers[i]['SecurityGroups'])
+            for k in range(lb_sg_count):
+                last_lb_sg = k == lb_sg_count-1
+                prefix = [
+                    False,
+                    True,
+                    last_load_balancer,
+                    last_lb_sg
+                ]
+                self_tree.append(f"{_prefix(prefix)} {load_balancers[i]['SecurityGroups'][k]}")
 
 
 if __name__ == "__main__":
