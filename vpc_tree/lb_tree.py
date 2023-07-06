@@ -1,9 +1,9 @@
 # lb_tree.py
 
 import boto3
-import pprint
 from prefix import get_prefix
 import tree
+
 
 class LBTree(tree.Tree):
     def __init__(self, vpc_id):
@@ -20,7 +20,6 @@ class LBTree(tree.Tree):
             lbs,
             self._lb_text
         )
-        return text_tree
 
     def _get_lbs(self):
         lbs = []
