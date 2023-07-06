@@ -17,7 +17,7 @@ def space_or_pipe(last_node):
     return SPACE_PREFIX if last_node else PIPE_PREFIX
 
 
-def prefix(last_nodes):
+def get_prefix(last_nodes):
     prefix = ''
 
     for i in range(len(last_nodes)):
