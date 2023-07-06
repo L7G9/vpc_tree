@@ -3,8 +3,7 @@
 """This module provides VPC Tree main module."""
 
 import boto3
-import pprint
-from prefix import prefix
+from prefix import get_prefix
 
 
 class ASGTree:
@@ -23,36 +22,60 @@ class ASGTree:
 
         return asgs
 
-    def filter_by_subnets(self, asgs, subnet_ids):
+    def filter_by_subnets(self, asgs, vpc_subnet_ids):
         filtered_asgs = []
         for asg in asgs:
-            if any(subnet_id in subnet_ids for subnet_id in asg['VPCZoneIdentifier'].split(',')):
+            asg_subnet_ids = asg['VPCZoneIdentifier'].split(',')
+            if any(id in vpc_subnet_ids for id in asg_subnet_ids):
                 filtered_asgs.append(asg)
 
         return filtered_asgs
 
-    def asg_tree(self, asgs):
+    def _make_tree(self, prefix_start, heading, items, item_function):
         tree = []
-
-        tree.append(f"Auto Scaling Groups:")
-        asg_count = len(asgs)
-        for i in range(asg_count):
-            asg = asgs[i]
-            last_asg = i == asg_count-1
-            tree.append(f"{prefix([last_asg])} {asg['AutoScalingGroupARN']} : {asg['AutoScalingGroupName']}")
-
-            tree.append(f"{prefix([last_asg, False])} Subnets:")
-            subnet_ids = asg['VPCZoneIdentifier'].split(',')
-            subnet_count = len(subnet_ids)
-            for j in range(subnet_count):
-                last_subnet = j == subnet_count-1
-                tree.append(f"{prefix([last_asg, False, last_subnet])} {subnet_ids[j]}")
-
-            tree.append(f"{prefix([last_asg, True])} Instances:")
-            instances = asg['Instances']
-            instance_count = len(instances)
-            for k in range(instance_count):
-                last_instance = k == instance_count-1
-                tree.append(f"{prefix([last_asg, True, last_instance])} {instances[k]['InstanceId']}")
+        tree.append(f"{get_prefix(prefix_start)}{heading}")
+        item_count = len(items)
+        for i in range(item_count):
+            last_item = i == item_count-1
+            tree += item_function(prefix_start + [last_item], items[i])
 
         return tree
+
+    def _get_asg(self, prefix, asg):
+        tree = []
+
+        asg_arn = asg['AutoScalingGroupARN']
+        asg_name = asg['AutoScalingGroupName']
+        tree.append(f"{get_prefix(prefix)} {asg_arn} : {asg_name}")
+
+        subnet_tree = self._make_tree(
+            prefix + [False],
+            'Subnets:',
+            asg['VPCZoneIdentifier'].split(','),
+            self._get_subnet
+        )
+        tree += subnet_tree
+
+        instance_tree = self._make_tree(
+            prefix + [True],
+            'Instances:',
+            asg['Instances'],
+            self._get_instance
+        )
+        tree += instance_tree
+
+        return tree
+
+    def _get_subnet(self, prefix, subnet_id):
+        return [f"{get_prefix(prefix)} {subnet_id}"]
+
+    def _get_instance(self, prefix, instance):
+        return [f"{get_prefix(prefix)} {instance['InstanceId']}"]
+
+    def asg_tree(self, asgs):
+        return self._make_tree(
+            [],
+            'Auto Scaling Groups:',
+            asgs,
+            self._get_asg
+        )
