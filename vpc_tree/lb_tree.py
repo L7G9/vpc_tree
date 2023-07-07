@@ -10,14 +10,14 @@ class LBTree(tree.Tree):
         self.vpc_id = vpc_id
 
     def generate(self):
-        lbs = self._get_lbs()
-        lbs = self._filter_by_vpc(lbs, self.vpc_id)
+        self.load_balancers = self._get_lbs()
+        self.load_balancers = self._filter_by_vpc(self.load_balancers, self.vpc_id)
 
         return tree.Tree._tree_text(
             self,
             [],
             'Load Balancers:',
-            lbs,
+            self.load_balancers,
             self._lb_text
         )
 
