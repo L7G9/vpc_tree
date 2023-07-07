@@ -9,16 +9,17 @@ import tree
 class SubnetTree(tree.Tree):
     def __init__(self, vpc_id):
         self.vpc_id = vpc_id
+        self.subnets = []
 
     def generate(self):
-        subnets = self._get_subnets()
-        subnets = sorted(subnets, key=lambda x: x['CidrBlock'])
+        self.subnets = self._get_subnets()
+        self.subnets = sorted(self.subnets, key=lambda x: x['CidrBlock'])
 
         return tree.Tree._tree_text(
             self,
             [],
             'Subnets:',
-            subnets,
+            self.subnets,
             self._subnet_text
         )
 
