@@ -5,6 +5,12 @@
 import boto3
 import pprint
 
+from sg_tree import SGTree
+from subnet_tree import SubnetTree
+from lb_tree import LBTree
+from asg_tree import ASGTree
+from target_group_tree import TargetGroupTree
+
 PIPE = "│"
 ELBOW = "└──"
 TEE = "├──"
@@ -61,6 +67,7 @@ class _TreeGenerator:
         self._client = boto3.client('ec2')
 
     def build_tree(self):
+        self._vpcs()
         self._vpc()
         return self._tree
 
@@ -87,190 +94,33 @@ class _TreeGenerator:
         cidr_block = vpc['CidrBlock']
         return f"{vpc_id} : {name} : {cidr_block}"
 
-    def _get_vpc_security_groups(self, vpc_id):
-        response = self._client.describe_security_groups(
-            Filters=[
-                {
-                    'Name': 'vpc-id',
-                    'Values': [
-                        vpc_id
-                    ]
-                },
-            ]
-        )
-        return response['SecurityGroups']
-
-    def _get_security_group_description(self, security_group, last_nodes):
-        security_group_id = security_group['GroupId']
-        name = security_group['GroupName']
-        return f"{_prefix(last_nodes)} {security_group_id} : {name}"
-
-    def _get_vpc_subnets(self, vpc_id):
-        response = self._client.describe_subnets(
-            Filters=[
-                {
-                    'Name': 'vpc-id',
-                    'Values': [
-                        vpc_id,
-                    ]
-                },
-            ]
-        )
-        return response['Subnets']
-
-    def _get_subnet_description(self, subnet, last_nodes):
-        id = subnet['SubnetId']
-        name = _get_tag_value(subnet['Tags'], 'Name')
-        az = subnet['AvailabilityZone']
-        cidr = subnet['CidrBlock']
-        return f"{_prefix(last_nodes)} {id} : {name} : {az} : {cidr} "
-
-    def _get_subnet_instances(self, subnet_id):
-        response = self._client.describe_instances(
-            Filters=[
-                {
-                    'Name': 'subnet-id',
-                    'Values': [
-                        subnet_id,
-                    ]
-                },
-            ]
-        )
-        instances = []
-        for reservation in response['Reservations']:
-            instances += reservation['Instances']
-
-        return instances
-
-    def _get_instance_description(self, instance, last_nodes):
-        id = instance['InstanceId']
-        name = _get_tag_value(instance['Tags'], 'Name')
-        image_id = instance['ImageId']
-        instance_type = instance['InstanceType']
-        state = instance['State']['Name']
-        ip_address = instance['PrivateIpAddress']
-        return f"{_prefix(last_nodes)} {id} : {name} : {image_id} : {instance_type} : {state} : {ip_address}"
-
-    def _get_vpc_load_balancers(self, vpc_id):
-        client = boto3.client('elbv2')
-        response = client.describe_load_balancers()
-        load_balancers = response['LoadBalancers']
-        filtered_load_balancers = list(
-            filter(lambda d: d['VpcId'] == vpc_id, load_balancers)
-        )
-        return filtered_load_balancers
-
-    def _get_load_balancer_description(self, load_balancer, last_nodes):
-        arn = load_balancer['LoadBalancerArn']
-        name = load_balancer['LoadBalancerName']
-        return f"{_prefix(last_nodes)} {arn} : {name}"
-
-    def _describe_lb_az(self, availability_zone, last_nodes):
-        zone = availability_zone['ZoneName']
-        subnet_id = availability_zone['SubnetId']
-        ip_address = availability_zone['LoadBalancerAddresses'][0]['IpAddress']
-        return f"{_prefix(last_nodes) {zone} : {subnet_id} : {ip_address}"
 
     def _vpc(self):
         vpc = self._get_vpc(self._vpc_id)
         self._tree.append(self._get_vpc_description(vpc))
 
-        self._tree.append(f"{TEE} Security Groups:")
+        sg_tree = SGTree(self._vpc_id)
+        self._tree += sg_tree.generate()
 
-        security_groups = self._get_vpc_security_groups(self._vpc_id)
-        security_group_count = len(security_groups)
-        for i in range(security_group_count):
-            last_subnet = i == security_group_count-1
-            self._tree.append(
-                self._get_security_group_description(
-                    security_groups[i],
-                    [False, last_subnet]
-                )
-            )
+        subnet_tree = SubnetTree(self._vpc_id)
+        self._tree += subnet_tree.generate()
 
-        self._tree.append(f"{TEE} Subnets:")
-        subnets = self._get_vpc_subnets(self._vpc_id)
-        subnets = sorted(subnets, key=lambda x: x['CidrBlock'])
-        subnet_count = len(subnets)
-        for i in range(subnet_count):
-            last_subnet = i == subnet_count-1
-            self._tree.append(
-                self._get_subnet_description(
-                    subnets[i],
-                    [False, last_subnet]
-                )
-            )
+        lb_tree = LBTree(self._vpc_id)
+        self._tree += lb_tree.generate()
 
-            instances = self._get_subnet_instances(subnets[i]['SubnetId'])
-            instances = sorted(instances, key=lambda x: x['PrivateIpAddress'])
-            instance_count = len(instances)
-            if instance_count != 0:
-                self._tree.append(
-                    f"{_prefix([False, last_subnet, True])} Instances:"
-                )
-                for j in range(instance_count):
-                    last_instance = j == instance_count-1
-                    self._tree.append(
-                        self._get_instance_description(
-                            instances[j],
-                            [False, True, last_subnet, last_instance]
-                        )
-                    )
-                    self._tree.append(
-                        f"{_prefix([False, True, last_subnet, last_instance, True])} Security Groups:"
-                    )
-                    security_group_count = len(instances[j]['SecurityGroups'])
-                    for k in range(security_group_count):
-                        last_security_group = k == security_group_count-1
-                        prefix = [
-                            False,
-                            True,
-                            True,
-                            last_subnet,
-                            last_instance,
-                            last_security_group
-                        ]
-                        id = instances[j]['SecurityGroups'][k]['GroupId']
-                        self._tree.append(
-                            f"{_prefix(prefix)} {id}"
-                        )
+        subnet_ids = []
+        for subnet in subnet_tree.subnets:
+            subnet_ids.append(subnet['SubnetId'])
+        asg_tree = ASGTree(subnet_ids)
+        self._tree += asg_tree.generate()
 
-        self._tree.append(f"{TEE} Load Balancers:")
-        load_balancers = self._get_vpc_load_balancers(self._vpc_id)
-        load_balancer_count = len(load_balancers)
-        for i in range(load_balancer_count):
-            last_load_balancer = i == load_balancer_count-1
-            self._tree.append(
-                self._get_load_balancer_description(
-                    load_balancers[i],
-                    [False, last_load_balancer]
-                )
-            )
-            self._tree.append(f"{_prefix([False, True, last_load_balancer, True])} Availability Zones:")
-            lb_az_count = len(load_balancers[i]['availabilityZones'])
-            for j in range(lb_az_count):
-                last_lb_az = j == lb_az_count-1
-                prefix = [
-                    False,
-                    True,
-                    last_load_balancer,
-                    last_lb_az
-                ]
-                self._tree.append(self._describe_lb_az(load_balancers[i]['availability_zones'][j], prefix))
-
-            self._tree.append(f"{_prefix([False, True, last_load_balancer, True])} security Groups:")
-            lb_sg_count = len(load_balancers[i]['SecurityGroups'])
-            for k in range(lb_sg_count):
-                last_lb_sg = k == lb_sg_count-1
-                prefix = [
-                    False,
-                    True,
-                    last_load_balancer,
-                    last_lb_sg
-                ]
-                self_tree.append(f"{_prefix(prefix)} {load_balancers[i]['SecurityGroups'][k]}")
+        load_balancer_arns = []
+        for load_balancer in lb_tree.load_balancers:
+            load_balancer_arns.append(load_balancer['LoadBalancerArn'])
+        target_group_tree = TargetGroupTree(load_balancer_arns)
+        self._tree += target_group_tree.generate()
 
 
 if __name__ == "__main__":
-    vpc_tree = VPCTree("vpc-0493abc0802f1f4f9")
+    vpc_tree = VPCTree("vpc-0135e5d4f0ba2e477")
     vpc_tree.generate()
