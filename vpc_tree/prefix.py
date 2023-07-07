@@ -32,3 +32,8 @@ def get_prefix(last_nodes):
 def prefix_list(prefix, list):
     for item in list:
         item = prefix + item
+
+def add_subtree_prefix(text_tree, root_prefix, branch_prefix):
+    text_tree[0] = root_prefix + text_tree[0]
+    for i in range(1, len(text_tree)):
+        text_tree[i] = branch_prefix + text_tree[i]
