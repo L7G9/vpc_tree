@@ -8,5 +8,5 @@ def get_tag(tags, key):
 def get_tag_value(tags, key):
     tag = get_tag(tags, key)
     if tag is not None:
-        return tag['Value']
+        return tag["Value"]
     return None

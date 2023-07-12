@@ -11,7 +11,7 @@ class Tree:
         tree.append(f"{get_prefix(prefix_start)}{heading}")
         item_count = len(items)
         for i in range(item_count):
-            last_item = i == item_count-1
+            last_item = i == item_count - 1
             tree += item_function(prefix_start + [last_item], items[i])
 
         return tree

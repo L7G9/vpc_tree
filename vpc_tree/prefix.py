@@ -18,10 +18,10 @@ def space_or_pipe(last_node):
 
 
 def get_prefix(last_nodes):
-    prefix = ''
+    prefix = ""
 
     for i in range(len(last_nodes)):
-        leaf_node = i == len(last_nodes)-1
+        leaf_node = i == len(last_nodes) - 1
         if leaf_node:
             prefix += elbow_or_tree(last_nodes[i])
         else:
@@ -29,9 +29,11 @@ def get_prefix(last_nodes):
 
     return prefix
 
+
 def prefix_list(prefix, list):
     for item in list:
         item = prefix + item
+
 
 def add_subtree_prefix(text_tree, root_prefix, branch_prefix):
     text_tree[0] = root_prefix + text_tree[0]
