@@ -3,8 +3,8 @@
 """This module provides ASG Tree main module."""
 
 import boto3
-from prefix import get_prefix
-import tree
+from .prefix import get_prefix
+from . import tree
 
 
 class AutoScalingGroups(tree.Tree):

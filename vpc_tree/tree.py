@@ -2,7 +2,7 @@
 
 """This module provides Tree main module."""
 
-from prefix import get_prefix
+from .prefix import get_prefix
 
 
 class Tree:

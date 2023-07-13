@@ -1,9 +1,9 @@
 # subnets.ph
 
 import boto3
-from prefix import get_prefix
-from tags import get_tag_value
-import tree
+from .prefix import get_prefix
+from .tags import get_tag_value
+from . import tree
 
 
 class Subnets(tree.Tree):

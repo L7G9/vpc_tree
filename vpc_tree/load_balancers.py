@@ -1,8 +1,8 @@
 # load_balancers.py
 
 import boto3
-from prefix import get_prefix
-import tree
+from .prefix import get_prefix
+from . import tree
 
 
 class LoadBalancers(tree.Tree):
