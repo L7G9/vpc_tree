@@ -12,21 +12,25 @@ from . import target_groups
 
 
 class VPCTree:
+    """Provide output for VPCTree comand line app."""
     def display_vpc_list(self):
-        list_generator = _VPCListGenerator()
-        vpcs: _VPCListGenerator = list_generator.generate()
+        """Print a list of all VPCs."""
+        vpcs = self._generate_vpc_list()
         for entry in vpcs:
             print(entry)
 
-    def display_vpc_tree(self, vpd_id):
-        tree_generator = _VPCTreeGenerator(vpd_id)
-        text_tree: _VPCListGenerator = tree_generator.generate()
+    def display_vpc_tree(self, vpc_id):
+        """Print a tree displaying the resources in a VPC.
+
+        Args:
+            vpc_id: A string containing the id of the VPC to display.
+        """
+        text_tree = self._generate_vpc_tree(vpc_id)
         for entry in text_tree:
             print(entry)
 
-
-class _VPCListGenerator:
-    def generate(self):
+    def _generate_vpc_list(self):
+        """Return a list of VPCs in AWS account."""
         vpcs = []
 
         client = boto3.client("ec2")
@@ -34,34 +38,32 @@ class _VPCListGenerator:
         for vpc in vpc_response["Vpcs"]:
             vpc_id = vpc["VpcId"]
             name = tags.get_tag_value(vpc["Tags"], "Name")
-            vpcs.append(f"VPC : {name} : {vpc_id}")
+            if name is None:
+                vpcs.append(f"VPC : {vpc_id}")
+            else:
+                vpcs.append(f"VPC : {name} : {vpc_id}")
 
         return vpcs
 
-
-class _VPCTreeGenerator:
-    def __init__(self, vpc_id):
-        self._vpc_id = vpc_id
-
-    def generate(self):
+    def _generate_vpc_tree(self, vpc_id):
         text_tree = []
 
-        vpc = self._get_vpc(self._vpc_id)
+        vpc = self._get_vpc(vpc_id)
         text_tree.append(self._get_vpc_description(vpc))
 
-        sgs = security_groups.SecurityGroups(self._vpc_id)
+        sgs = security_groups.SecurityGroups(vpc_id)
         sg_text_tree = sgs.generate()
         prefix.add_subtree_prefix(sg_text_tree, prefix.TEE, prefix.PIPE)
         text_tree += sg_text_tree
 
-        sns = subnets.Subnets(self._vpc_id)
+        sns = subnets.Subnets(vpc_id)
         subnet_text_tree = sns.generate()
         prefix.add_subtree_prefix(
             subnet_text_tree, prefix.TEE, prefix.PIPE
         )
         text_tree += subnet_text_tree
 
-        lbs = load_balancers.LoadBalancers(self._vpc_id)
+        lbs = load_balancers.LoadBalancers(vpc_id)
         load_balancer_text_tree = lbs.generate()
         prefix.add_subtree_prefix(
             load_balancer_text_tree, prefix.TEE, prefix.PIPE
@@ -99,12 +101,13 @@ class _VPCTreeGenerator:
                 vpc_id
             ],
         )
-
-        # TODO: error check
         return response["Vpcs"][0]
 
     def _get_vpc_description(self, vpc):
         vpc_id = vpc["VpcId"]
         name = tags.get_tag_value(vpc["Tags"], "Name")
         cidr_block = vpc["CidrBlock"]
-        return f"{vpc_id} : {name} : {cidr_block}"
+        if name is None:
+            return f"{vpc_id} : {cidr_block}"
+        else:
+            return f"{vpc_id} : {name} : {cidr_block}"
