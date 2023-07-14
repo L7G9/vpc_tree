@@ -4,33 +4,35 @@
     structures returned by Boto3."""
 
 
-def get_tag(tags, key):
-    """Get tag with a given key from a list of tags.
+def get_tag(resource, key):
+    """Get tag with a given key from a AWS resource dictionary.
 
     Args:
-        tags: A list of dictionaries containing AWS resource tags as defined
-            in boto3.
-        key: A string containing the name value of the tag's ket to find.
+        resource: A dictionary decribing a AWS resource tags as defined in boto3.
+        key: A string containing the name value of the tag's key to find.
 
     return:
         A dictionary representing the AWS resource tag.
+        None if resource as no Tags or Tags does no contain Tag with given key.
     """
-    return next(filter(lambda d: d.get("Key") == key, tags), None)
+    if 'Tags' in resource:
+        return next(filter(lambda d: d.get('Key') == key, resource['Tags']), none)
+    else:
+        return None
 
-
-def get_tag_value(tags, key):
-    """Get value of a tag from s list of tags.
+def get_tag_value(resource, key):
+    """Get value of tag with a given key from a AWS resource dictionary.
 
     Args:
-        tags: A list of dictionaries containing AWS resource tags as defined
-            in boto3.
-        key: A string containing the name value of the tag's ket to find.
+        resource: A dictionary decribing a AWS resource tags as defined in boto3.
+        key: A string containing the name value of the tag's key to find.
 
     return:
-        A string containing the value of the AWS resource tag. None if no tag
-            with that key is found.
+        A string containing the value of the AWS resource tag.
+        None if no tag with that key is found.
     """
-    tag = get_tag(tags, key)
+    tag = get_tag(resource, key)
     if tag is not None:
-        return tag["Value"]
-    return None
+        return tag['Value']
+    else:
+        return None
