@@ -25,7 +25,7 @@ class SecurityGroups(tree.Tree):
 
     def generate(self):
         """Generate a text based tree describing all security groups linked to
-            vpc_id.
+        vpc_id.
 
         Returns:
             A list of strings containing the text based tree.

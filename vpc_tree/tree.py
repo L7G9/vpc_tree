@@ -1,12 +1,12 @@
 # tree.py
-
 """This module provides Tree main module."""
 
 from .prefix import get_prefix
 
 
 class Tree:
-    """Tree class to be inherited by classes creating text based trees from AWS resources."""
+    """Tree class to be inherited by classes creating text based trees from AWS
+    resources."""
     def _tree_text(self, prefix_start, heading, items, item_function):
         """Create a text based tree.
         Args:

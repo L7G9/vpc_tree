@@ -1,28 +1,22 @@
 # prefix.py
-
 """Constants and functions to provide the prefix string need to connect the
-    different elements of a text based tree structure together.
+different elements of a text based tree structure together.
 
 Uses a list of booleans to describe the structure of this prefix string.
 
-The last boolean is used to indicate if the last part of the prefix is an
-    ELBOW or a TEE.
-True is used for ELBOW, when it is the last sibling node in the subtree.
-False is used for TEE, when there are preceding sibling nodes in a subtree.
+The last boolean is used to indicate if the last part of the prefix is
+an     ELBOW or a TEE. True is used for ELBOW, when it is the last
+sibling node in the subtree. False is used for TEE, when there are
+preceding sibling nodes in a subtree.
 
-The proceeding booleans are indicate when to use a PIPE or a SPACE in the
-    proceeding part the prefix.
-True is used for SPACE, when there are no more sibling nodes in the same
-    subtree.
-False is used for PIPE, when there are more sibling nodes in the same subtree.
+The proceeding booleans are indicate when to use a PIPE or a SPACE in
+the     proceeding part the prefix. True is used for SPACE, when there
+are no more sibling nodes in the same     subtree. False is used for
+PIPE, when there are more sibling nodes in the same subtree.
 
-Examples.
-[False]            = "├──"
-[False, True]      = "│   └──"
-[True]             = "└──"
-[True, False]      = "    ├──"
-[True, True]       = "    └──"
-[True, True, True] = "        └──"
+Examples. [False]            = "├──" [False, True]      = "│   └──"
+[True]             = "└──" [True, False]      = "    ├──" [True, True]
+= "    └──" [True, True, True] = "        └──"
 """
 
 ELBOW = "└──"

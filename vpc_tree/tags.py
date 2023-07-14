@@ -1,7 +1,6 @@
 # tags.py
-
 """Helper functions to access information in AWS resource tags in the data
-    structures returned by Boto3."""
+structures returned by Boto3."""
 
 
 def get_tag(resource, key):

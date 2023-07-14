@@ -28,7 +28,7 @@ class LoadBalancers(tree.Tree):
 
     def generate(self):
         """Generate a text based tree describing all load balancers linked to
-            vpc_id.
+        vpc_id.
 
         Returns:
             A list of strings containing the text based tree.
@@ -84,13 +84,13 @@ class LoadBalancers(tree.Tree):
         return text_tree
 
     def _az_text(self, prefix, az):
-        """Describe an availability zone linked to a load balancer as a list
-            of strings."""
+        """Describe an availability zone linked to a load balancer as a list of
+        strings."""
         zone = az["ZoneName"]
         subnet_id = az["SubnetId"]
         return [f"{get_prefix(prefix)}{zone} : {subnet_id}"]
 
     def _sg_text(self, prefix, sg):
         """Describe a security group linked to a load balancer as a list of
-            strings."""
+        strings."""
         return [f"{get_prefix(prefix)}{sg}"]

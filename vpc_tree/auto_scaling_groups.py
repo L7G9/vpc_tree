@@ -1,5 +1,4 @@
 # auto_scaling_groups.py
-
 """This module provides ASG Tree main module."""
 
 import boto3
@@ -29,7 +28,7 @@ class AutoScalingGroups(tree.Tree):
 
     def generate(self):
         """Generate a text based tree describing all the auto scaling groups
-            linked to subnets in subnet_ids.
+        linked to subnets in subnet_ids.
 
         Returns:
             A list of strings containing the text based tree.

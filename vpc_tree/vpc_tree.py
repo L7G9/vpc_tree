@@ -1,5 +1,4 @@
 # vpc_tree.py
-
 """This module provides VPC Tree main module."""
 
 import boto3

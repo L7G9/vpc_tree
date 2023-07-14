@@ -25,8 +25,8 @@ class TargetGroups(tree.Tree):
         self.load_balancer_arns = load_balancer_arns
 
     def generate(self):
-        """Generate a text based tree describing all the target groups linked to the load balancers
-               in a virtual private cloud.
+        """Generate a text based tree describing all the target groups linked
+        to the load balancers in a virtual private cloud.
 
         Returns:
             A list of strings containing the text based tree.
@@ -73,5 +73,6 @@ class TargetGroups(tree.Tree):
         return text_tree
 
     def _load_balancer_text(self, prefix_list, load_balancer_arn):
-        """Describe load balancer linked to target group as a list of strings."""
+        """Describe load balancer linked to target group as a list of
+        strings."""
         return [f"{get_prefix(prefix_list)}{load_balancer_arn}"]

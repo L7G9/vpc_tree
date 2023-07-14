@@ -15,7 +15,6 @@ class Subnets(tree.Tree):
     Attributes:
         vpc_id: A string containing the id of a virtual private cloud.
         subnets: A list of dictionaries containing the subnets found when generate is called.
-
     """
     def __init__(self, vpc_id):
         """Initializes instance.
