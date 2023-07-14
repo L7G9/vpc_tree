@@ -9,7 +9,7 @@ class SecurityGroups(tree.Tree):
     """AWS Security Groups.
 
     Subclass of tree.Tree with the functionality to get details of security
-       groups from boto3 and display them as a text based tree.
+    groups from boto3 and display them as a text based tree.
 
     Attributes:
         vpc_id: A string containing the id of a virtual private cloud.
@@ -19,7 +19,7 @@ class SecurityGroups(tree.Tree):
 
         Args:
             vpc_id: A string containing the id virtual private cloud which all
-                the security groups should be linked to.
+            the security groups should be linked to.
         """
         self.vpc_id = vpc_id
 

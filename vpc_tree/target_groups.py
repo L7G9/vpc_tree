@@ -9,18 +9,18 @@ class TargetGroups(tree.Tree):
     """AWS Target Groups.
 
     Subclass of tree.Tree with the functionality to get details of target
-        groups from boto3 and display them as a text based tree.
+    groups from boto3 and display them as a text based tree.
 
     Attributes:
         load_balancer_arns: A list of strings containing the arns of the load balancers in a
-            virtual private cloud.
+        virtual private cloud.
     """
     def __init__(self, load_balancer_arns):
         """Initializes instance.
 
         Args:
             load_balancer_arns: A list of strings containing the arns of the load balancers in
-                a virtual private cloud.
+            a virtual private cloud.
         """
         self.load_balancer_arns = load_balancer_arns
 

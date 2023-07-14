@@ -10,7 +10,7 @@ class Subnets(tree.Tree):
     """AWS Subnets.
 
     Subclass of tree.Tree with the functionality to get details of subnets
-       from boto3 and display them as a text based tree.
+    from boto3 and display them as a text based tree.
 
     Attributes:
         vpc_id: A string containing the id of a virtual private cloud.
@@ -21,7 +21,7 @@ class Subnets(tree.Tree):
 
         Args:
             vpc_id: A string containing the id virtual private cloud which all
-                the subnets should be linked to.
+            the subnets should be linked to.
         """
         self.vpc_id = vpc_id
         self.subnets = []

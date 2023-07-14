@@ -5,18 +5,22 @@ different elements of a text based tree structure together.
 Uses a list of booleans to describe the structure of this prefix string.
 
 The last boolean is used to indicate if the last part of the prefix is
-an     ELBOW or a TEE. True is used for ELBOW, when it is the last
-sibling node in the subtree. False is used for TEE, when there are
-preceding sibling nodes in a subtree.
+an ELBOW or a TEE. True is used for ELBOW, when it is the last sibling
+node in the subtree. False is used for TEE, when there are preceding
+sibling nodes in a subtree.
 
 The proceeding booleans are indicate when to use a PIPE or a SPACE in
-the     proceeding part the prefix. True is used for SPACE, when there
-are no more sibling nodes in the same     subtree. False is used for
-PIPE, when there are more sibling nodes in the same subtree.
+the proceeding part the prefix. True is used for SPACE, when there are no
+more sibling nodes in the same subtree. False is used for PIPE, when there
+are more sibling nodes in the same subtree.
 
-Examples. [False]            = "├──" [False, True]      = "│   └──"
-[True]             = "└──" [True, False]      = "    ├──" [True, True]
-= "    └──" [True, True, True] = "        └──"
+Examples.
+- [False]            = "├──"
+- [False, True]      = "│   └──"
+- [True]             = "└──"
+- [True, False]      = "    ├──"
+- [True, True]       = "    └──"
+- [True, True, True] = "        └──"
 """
 
 ELBOW = "└──"
@@ -30,7 +34,7 @@ def elbow_or_tree(last_leaf_node):
 
     Args:
        last_leaf_node: A boolean set to True when adding the last sibling node
-           in the subtree.
+       in the subtree.
 
     Returns:
         A string which is either an ELBOW or TEE.
@@ -43,7 +47,7 @@ def space_or_pipe(last_sub_tree):
 
     Args:
        last_sub_tree: A boolean set to True when there are no more sibling
-           nodes in the same subtree.
+       nodes in the same subtree.
 
     Returns:
         A string which is either an PIPE or SPACE.
@@ -55,8 +59,8 @@ def get_prefix(prefix_description):
     """Selects PIPE or SPACE.
 
     Args:
-       prefix_description: A list booleans describing the structure of a
-           prefix string
+        prefix_description: A list booleans describing the structure of a
+        prefix string
 
     Returns:
         A string representing the prefix described by prefix_description.
@@ -81,9 +85,9 @@ def add_subtree_prefix(text_tree, root_prefix, branch_prefix):
     Args:
         text_tree: A list of strings describing a tree structure.
         root_prefix: A string equal to the prefix to add to the start of the
-            1st item in the list.
+        1st item in the list.
         branch_prefix: A string equal to the prefix to add to the start of the
-            all items in the list after the 1st.
+        all items in the list after the 1st.
     """
     text_tree[0] = root_prefix + text_tree[0]
     for i in range(1, len(text_tree)):

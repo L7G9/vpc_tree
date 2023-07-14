@@ -10,11 +10,11 @@ class AutoScalingGroups(tree.Tree):
     """AWS Auto Scaling Groups.
 
     Subclass of tree.Tree with the functionality to get details of auto
-        scaling groups from boto3 and display them as a text based tree.
+    scaling groups from boto3 and display them as a text based tree.
 
     Attributes:
         subnet_ids: A list of strings containing the ids of the subnets in a
-            virtual private cloud.
+        virtual private cloud.
     """
 
     def __init__(self, subnet_ids):
@@ -22,7 +22,7 @@ class AutoScalingGroups(tree.Tree):
 
         Args:
             subnet_ids: A list of strings containing the ids of the subnets in
-                a virtual private cloud.
+            a virtual private cloud.
         """
         self.subnet_ids = subnet_ids
 

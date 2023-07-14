@@ -9,19 +9,19 @@ class LoadBalancers(tree.Tree):
     """AWS Load Balancers.
 
     Subclass of tree.Tree with the functionality to get details of auto
-        scaling groups from boto3 and display them as a text based tree.
+    scaling groups from boto3 and display them as a text based tree.
 
     Attributes:
         vpc_id: A string containing the id of a virtual private cloud.
         load_balancers: A list of dictionaries containing details of all the
-            load balancers linked to vpc_id.
+        load balancers linked to vpc_id.
     """
     def __init__(self, vpc_id):
         """Initializes instance.
 
         Args:
             vpc_id: A strings containing the id virtual private cloud which
-                all the load balancers should be linked to.
+            all the load balancers should be linked to.
         """
         self.vpc_id = vpc_id
         self.load_balancers = []
