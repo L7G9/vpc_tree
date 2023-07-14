@@ -57,10 +57,14 @@ class Subnets(tree.Tree):
 
         prefix = get_prefix(prefix_list)
         id = subnet["SubnetId"]
-        name = get_tag_value(subnet["Tags"], "Name")
+        name = get_tag_value(subnet, "Name")
         az = subnet["AvailabilityZone"]
         cidr = subnet["CidrBlock"]
-        text_tree.append(f"{prefix} {id} : {name} : {az} : {cidr} ")
+
+        if name is None:
+            text_tree.append(f"{prefix} {id} : {az} : {cidr} ")
+        else:
+            text_tree.append(f"{prefix} {id} : {name} : {az} : {cidr} ")
 
         instances = self._get_instances(id)
         if len(instances) > 0:
@@ -81,15 +85,21 @@ class Subnets(tree.Tree):
 
         prefix = get_prefix(prefix_list)
         id = instance["InstanceId"]
-        name = get_tag_value(instance["Tags"], "Name")
+        name = None
+        name = get_tag_value(instance, "Name")
         image = instance["ImageId"]
         type = instance["InstanceType"]
         state = instance["State"]["Name"]
         ip = instance["PrivateIpAddress"]
 
-        text_tree.append(
-            f"{prefix}{id} : {name} : {image} : {type} : {state} : {ip}"
-        )
+        if name is None:
+            text_tree.append(
+                f"{prefix}{id} : {image} : {type} : {state} : {ip}"
+            )
+        else:
+            text_tree.append(
+                f"{prefix}{id} : {name} : {image} : {type} : {state} : {ip}"
+            )
 
         security_group_tree = tree.Tree._tree_text(
             self,
