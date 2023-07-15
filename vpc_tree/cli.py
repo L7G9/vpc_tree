@@ -1,12 +1,13 @@
-"""This module provides the VPC Tree CLI."""
 # cli.py
+"""VPC Tree application's Command Line Interface."""
 
 import argparse
-from . import __version__
-from . import vpc_tree
+
+from . import __version__, vpc_tree
 
 
 def main():
+    """"""
     args = parse_cmd_line_arguments()
     tree = vpc_tree.VPCTree()
     if args.list_vpcs:
@@ -16,6 +17,7 @@ def main():
 
 
 def parse_cmd_line_arguments():
+    """"""
     parser = argparse.ArgumentParser(
         prog="vpc_tree",
         description="VPC Tree, an AWS resource tree generator",
@@ -33,7 +35,7 @@ def parse_cmd_line_arguments():
         "vpc_id",
         metavar="VPC_ID",
         nargs="?",
-        help="Generate a tree describing the structure of the virtual Private Cloud with VPD_ID",
+        help="Generate a tree of the Virtual Private Cloud's structure",
     )
 
     return parser.parse_args()
