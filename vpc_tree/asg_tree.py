@@ -33,9 +33,7 @@ class ASGTree:
             A list of strings containing the text based tree.
         """
         asgs = self._filter_by_subnets(self._get_asgs(), self.subnet_ids)
-        return generate_tree(
-            [], "Auto Scaling Groups:", asgs, self._asg_text
-        )
+        return generate_tree([], "Auto Scaling Groups:", asgs, self._asg_text)
 
     def _get_asgs(self):
         """Get all Auto Scaling Groups using Boto3."""

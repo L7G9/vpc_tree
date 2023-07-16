@@ -37,9 +37,7 @@ class SubnetTree:
             self._get_subnets(), key=lambda x: x["CidrBlock"]
         )
 
-        return generate_tree(
-            [], "Subnets:", self.subnets, self._subnet_text
-        )
+        return generate_tree([], "Subnets:", self.subnets, self._subnet_text)
 
     def _get_subnets(self):
         """Get all Subnets linked to vpc_id using Boto3."""

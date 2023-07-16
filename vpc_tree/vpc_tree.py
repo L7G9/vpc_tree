@@ -30,11 +30,11 @@ class VPCTree:
         """Return a list of Virtual Private Clouds in AWS account."""
         vpcs = []
 
-        client = boto3.client('ec2')
+        client = boto3.client("ec2")
         vpc_response = client.describe_vpcs()
-        for vpc in vpc_response['Vpcs']:
-            vpc_id = vpc['VpcId']
-            name = tags.get_tag_value(vpc['Tags'], 'Name')
+        for vpc in vpc_response["Vpcs"]:
+            vpc_id = vpc["VpcId"]
+            name = tags.get_tag_value(vpc["Tags"], "Name")
             if name is None:
                 vpcs.append(f"VPC : {vpc_id}")
             else:
@@ -66,7 +66,7 @@ class VPCTree:
 
         subnet_ids = []
         for subnet in subnet_tree_generator.subnets:
-            subnet_ids.append(subnet['SubnetId'])
+            subnet_ids.append(subnet["SubnetId"])
 
         asg_tree_generator = asg_tree.ASGTree(subnet_ids)
         asg_text_tree = asg_tree_generator.generate()
@@ -75,7 +75,7 @@ class VPCTree:
 
         load_balancer_arns = []
         for load_balancer in lb_tree_generator.load_balancers:
-            load_balancer_arns.append(load_balancer['LoadBalancerArn'])
+            load_balancer_arns.append(load_balancer["LoadBalancerArn"])
 
         tg_tree_generator = tg_tree.TGTree(load_balancer_arns)
         tg_text_tree = tg_tree_generator.generate()
@@ -86,17 +86,17 @@ class VPCTree:
 
     def _get_vpc(self, vpc_id):
         """Get Virtual Private Cloud linked to vpc_id."""
-        client = boto3.client('ec2')
+        client = boto3.client("ec2")
         response = client.describe_vpcs(
             VpcIds=[vpc_id],
         )
-        return response['Vpcs'][0]
+        return response["Vpcs"][0]
 
     def _get_vpc_description(self, vpc):
         """Get description of Virtual Private Cloud in vpc."""
-        vpc_id = vpc['VpcId']
-        name = tags.get_tag_value(vpc['Tags'], 'Name')
-        cidr_block = vpc['CidrBlock']
+        vpc_id = vpc["VpcId"]
+        name = tags.get_tag_value(vpc["Tags"], "Name")
+        cidr_block = vpc["CidrBlock"]
         if name is None:
             return f"{vpc_id} : {cidr_block}"
         else:

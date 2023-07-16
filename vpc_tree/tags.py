@@ -15,10 +15,9 @@ def get_tag(resource, key):
         A dictionary representing the AWS resource Tag.
         None if resource as no Tags or Tags does no contain Tag with given key.
     """
-    if 'Tags' in resource:
+    if "Tags" in resource:
         return next(
-            filter(lambda d: d.get('Key') == key, resource['Tags']),
-            None
+            filter(lambda d: d.get("Key") == key, resource["Tags"]), None
         )
     else:
         return None
@@ -38,6 +37,6 @@ def get_tag_value(resource, key):
     """
     tag = get_tag(resource, key)
     if tag is not None:
-        return tag['Value']
+        return tag["Value"]
     else:
         return None

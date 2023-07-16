@@ -35,20 +35,20 @@ class TGTree:
         target_groups = self._get_target_groups(self.load_balancer_arns)
 
         return generate_tree(
-            [], 'Target Groups:', target_groups, self._target_group_text
+            [], "Target Groups:", target_groups, self._target_group_text
         )
 
     def _get_target_groups(self, load_balancer_arns):
         """Get all target groups linked to load balancer arns using Boto3."""
         target_groups = []
 
-        client = boto3.client('elbv2')
-        paginator = client.get_paginator('describe_target_groups')
+        client = boto3.client("elbv2")
+        paginator = client.get_paginator("describe_target_groups")
 
         for arn in load_balancer_arns:
             page_iterator = paginator.paginate(LoadBalancerArn=arn)
             for page in page_iterator:
-                target_groups += page['TargetGroups']
+                target_groups += page["TargetGroups"]
 
         return target_groups
 
@@ -56,16 +56,16 @@ class TGTree:
         """Describe Target Group as a list of strings."""
         text_tree = []
 
-        arn = target_group['TargetGroupArn']
-        name = target_group['TargetGroupName']
+        arn = target_group["TargetGroupArn"]
+        name = target_group["TargetGroupName"]
         prefix = get_prefix(prefix_description)
         text_tree.append(f"{prefix}{arn} : {name}")
 
-        load_balancer_arns = target_group['LoadBalancerArns']
+        load_balancer_arns = target_group["LoadBalancerArns"]
         if len(load_balancer_arns) > 0:
             text_tree += generate_tree(
                 prefix_description + [True],
-                'Load Balancers:',
+                "Load Balancers:",
                 load_balancer_arns,
                 self._load_balancer_text,
             )
