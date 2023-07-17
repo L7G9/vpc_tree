@@ -62,13 +62,20 @@ class SGTree:
             prefix_description + [False],
             "Ingress Permissions:",
             sg["IpPermissions"],
-            self._ingress_text)
+            self._permission_text)
         text_tree += ingress_tree
+
+        egress_tree = generate_tree(
+            prefix_description + [True],
+            "Egress Permissions:",
+            sg["IpPermissionsEgress"],
+            self._permission_text)
+        text_tree += egress_tree
 
         return text_tree
 
-    def _ingress_text(self, prefix_description, permission):
-        """Describe a Security Group Ingress Rule as a list of strings"""
+    def _permission_text(self, prefix_description, permission):
+        """Describe a Security Group Permission as a list of strings"""
         text_tree = []
         prefix = get_prefix(prefix_description)
         protocol = permission["IpProtocol"]
@@ -83,7 +90,7 @@ class SGTree:
             prefix_description + [False],
             "IP Ranges:",
             permission["IpRanges"],
-            self._ip_range_text
+            self._permission_ip_range_text
         )
         text_tree += ip_tree
 
@@ -91,17 +98,17 @@ class SGTree:
             prefix_description + [True],
             "Security Groups:",
             permission["UserIdGroupPairs"],
-            self._ingress_sg_text
+            self._permission_sg_text
         )
         text_tree += sg_tree
 
         return text_tree
 
-    def _ip_range_text(self, prefix_description, ip_range):
+    def _permission_ip_range_text(self, prefix_description, ip_range):
         """Describe an IP Range as a list of strings."""
         return [f"{get_prefix(prefix_description)}{ip_range['CidrIp']}"]
 
-    def _ingress_sg_text(self, prefix_description, group_pair):
-        """Describe a Security Group linked to an Ingress Permission as a list
-        of strings."""
+    def _permission_sg_text(self, prefix_description, group_pair):
+        """Describe a Security Group linked to a Permission as a list of
+        strings."""
         return [f"{get_prefix(prefix_description)}{group_pair['GroupId']}"]
