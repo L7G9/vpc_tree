@@ -5,7 +5,6 @@ import boto3
 
 from .prefix import get_prefix
 from .text_tree import generate_tree
-import pprint
 
 
 class ASGTree:
@@ -62,7 +61,6 @@ class ASGTree:
 
     def _asg_text(self, prefix_description, asg):
         """Describe an Auto Scaling Group as a list of strings."""
-        pprint.pprint(asg)
         text_tree = []
 
         arn = asg["AutoScalingGroupARN"]
