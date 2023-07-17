@@ -87,7 +87,9 @@ class ASGTree:
 
         if "MixedInstancesPolicy" in asg:
             text_tree.append(f"{sub_prefix_1}Mixed Instances Policy")
-            id = asg["MixedInstancesPolicy"]["LaunchTemplate"]["LaunchTemplateSpecification"]["LaunchTemplateId"]
+            id = asg["MixedInstancesPolicy"]["LaunchTemplate"][
+                "LaunchTemplateSpecification"
+            ]["LaunchTemplateId"]
             text_tree.append(f"{sub_prefix_2}{id}")
 
         subnet_tree = generate_tree(
@@ -140,6 +142,6 @@ class ASGTree:
         return [f"{get_prefix(prefix_description)} {lb_name}"]
 
     def _tg_text(self, prefix_description, tg_arn):
-        """Describe a Target Group linked to an Auto Scaling Group as a list
-        of strings."""
+        """Describe a Target Group linked to an Auto Scaling Group as a list of
+        strings."""
         return [f"{get_prefix(prefix_description)} {tg_arn}"]
