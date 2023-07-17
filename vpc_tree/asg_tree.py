@@ -5,6 +5,7 @@ import boto3
 
 from .prefix import get_prefix
 from .text_tree import generate_tree
+import pprint
 
 
 class ASGTree:
@@ -61,11 +62,29 @@ class ASGTree:
 
     def _asg_text(self, prefix_description, asg):
         """Describe an Auto Scaling Group as a list of strings."""
+        pprint.pprint(asg)
         text_tree = []
 
         arn = asg["AutoScalingGroupARN"]
         name = asg["AutoScalingGroupName"]
-        text_tree.append(f"{get_prefix(prefix_description)} {arn} : {name}")
+        text_tree.append(f"{get_prefix(prefix_description)}{arn} : {name}")
+
+        launch_prefix_1 = get_prefix(prefix_description + [False])
+        launch_prefix_2 = get_prefix(prefix_description + [False] + [True])
+        if "LaunchConfigurationName" in asg:
+
+            text_tree.append(f"{launch_prefix_1}Launch Configuration")
+            text_tree.append(f"{launch_prefix_2}{asg['LaunchConfigurationName']}")
+
+        if "LaunchTemplate" in asg:
+            text_tree.append(f"{launch_prefix_1}Launch Template")
+            id = asg["LaunchTemplate"]["LaunchTemplateId"]
+            text_tree.append(f"{launch_prefix_2}{id}")
+
+        if "MixedInstancesPolicy" in asg:
+            text_tree.append(f"{launch_prefix_1}Mixed Instances Policy")
+            id = asg["MixedInstancesPolicy"]["LaunchTemplate"]["LaunchTemplateSpecification"]["LaunchTemplateId"]
+            text_tree.append(f"{launch_prefix_2}{id}")
 
         subnet_tree = generate_tree(
             prefix_description + [False],
