@@ -99,12 +99,28 @@ class ASGTree:
         text_tree += subnet_tree
 
         instance_tree = generate_tree(
-            prefix_description + [True],
+            prefix_description + [False],
             "Instances:",
             asg["Instances"],
             self._instance_text,
         )
         text_tree += instance_tree
+
+        lb_tree = generate_tree(
+            prefix_description + [False],
+            "Load Balancers:",
+            asg["LoadBalancerNames"],
+            self._lb_text,
+        )
+        text_tree += lb_tree
+
+        tg_tree = generate_tree(
+            prefix_description + [True],
+            "Target Groups:",
+            asg["TargetGroupARNs"],
+            self._tg_text,
+        )
+        text_tree += tg_tree
 
         return text_tree
 
@@ -117,3 +133,13 @@ class ASGTree:
         """Describe an Instance linked to an Auto Scaling Group as a list of
         strings."""
         return [f"{get_prefix(prefix_description)} {instance['InstanceId']}"]
+
+    def _lb_text(self, prefix_description, lb_name):
+        """Describe a Load Balancer linked to an Auto Scaling Group as a list
+        of strings."""
+        return [f"{get_prefix(prefix_description)} {lb_name}"]
+
+    def _tg_text(self, prefix_description, tg_arn):
+        """Describe a Target Group linked to an Auto Scaling Group as a list
+        of strings."""
+        return [f"{get_prefix(prefix_description)} {tg_arn}"]
