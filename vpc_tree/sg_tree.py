@@ -53,6 +53,55 @@ class SGTree:
 
     def _sg_text(self, prefix_description, sg):
         """Describe a Security Group as a list of strings."""
+        text_tree = []
         id = sg["GroupId"]
         name = sg["GroupName"]
-        return [f"{get_prefix(prefix_description)}{id} : {name}"]
+        text_tree.append(f"{get_prefix(prefix_description)}{id} : {name}")
+
+        ingress_tree = generate_tree(
+            prefix_description + [False],
+            "Ingress Permissions:",
+            sg["IpPermissions"],
+            self._ingress_text)
+        text_tree += ingress_tree
+
+        return text_tree
+
+    def _ingress_text(self, prefix_description, permission):
+        """Describe a Security Group Ingress Rule as a list of strings"""
+        text_tree = []
+        prefix = get_prefix(prefix_description)
+        protocol = permission["IpProtocol"]
+        if protocol != "-1":
+            from_port = permission["FromPort"]
+            to_port = permission["ToPort"]
+            text_tree.append(f"{prefix}{protocol} : {from_port} : {to_port}")
+        else:
+            text_tree.append(f"{prefix}All")
+
+        ip_tree = generate_tree(
+            prefix_description + [False],
+            "IP Ranges:",
+            permission["IpRanges"],
+            self._ip_range_text
+        )
+        text_tree += ip_tree
+
+        sg_tree = generate_tree(
+            prefix_description + [True],
+            "Security Groups:",
+            permission["UserIdGroupPairs"],
+            self._ingress_sg_text
+        )
+        text_tree += sg_tree
+
+        return text_tree
+
+    def _ip_range_text(self, prefix_description, ip_range):
+        """Describe an IP Range as a list of strings."""
+        return [f"{get_prefix(prefix_description)}{ip_range['CidrIp']}"]
+
+    def _ingress_sg_text(self, prefix_description, group_pair):
+        """Describe a Security Group linked to an Ingress Permission as a list
+        of strings."""
+        return [f"{get_prefix(prefix_description)}{group_pair['GroupId']}"]
