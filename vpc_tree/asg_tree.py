@@ -127,19 +127,19 @@ class ASGTree:
     def _subnet_text(self, prefix_description, subnet_id):
         """Describe a Subnet linked to an Auto Scaling Group as a list of
         strings."""
-        return [f"{get_prefix(prefix_description)} {subnet_id}"]
+        return [f"{get_prefix(prefix_description)}{subnet_id}"]
 
     def _instance_text(self, prefix_description, instance):
         """Describe an Instance linked to an Auto Scaling Group as a list of
         strings."""
-        return [f"{get_prefix(prefix_description)} {instance['InstanceId']}"]
+        return [f"{get_prefix(prefix_description)}{instance['InstanceId']}"]
 
     def _lb_text(self, prefix_description, lb_name):
         """Describe a Load Balancer linked to an Auto Scaling Group as a list
         of strings."""
-        return [f"{get_prefix(prefix_description)} {lb_name}"]
+        return [f"{get_prefix(prefix_description)}{lb_name}"]
 
     def _tg_text(self, prefix_description, tg_arn):
         """Describe a Target Group linked to an Auto Scaling Group as a list of
         strings."""
-        return [f"{get_prefix(prefix_description)} {tg_arn}"]
+        return [f"{get_prefix(prefix_description)}{tg_arn}"]
