@@ -85,9 +85,9 @@ class SubnetTree:
         cidr = subnet["CidrBlock"]
 
         if name is None:
-            text_tree.append(f"{prefix} {id} : {az} : {cidr}")
+            text_tree.append(f"{prefix}{id} : {az} : {cidr}")
         else:
-            text_tree.append(f"{prefix} {id} : {name} : {az} : {cidr}")
+            text_tree.append(f"{prefix}{id} : {name} : {az} : {cidr}")
 
         instances = self._get_instances(id)
         if len(instances) > 0:
