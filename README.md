@@ -32,11 +32,9 @@ The current version VPC Tree displays following resources in this order...
 ## Getting Started
 
 ### Requirements
-- [python3](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
+- [Python3](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - [Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html)
-
-### 
 
 Clone Github repositoy and move into project dirctory.
 ```bash
@@ -164,4 +162,3 @@ All these resources were used to create this project.  Thank you to all those wh
 - [Black](https://pypi.org/project/black/)
 - [Docformatter](https://github.com/PyCQA/docformatter)
 ---
-
