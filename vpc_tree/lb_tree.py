@@ -62,7 +62,7 @@ class LBTree:
         text_tree = []
         arn = lb["LoadBalancerArn"]
         name = lb["LoadBalancerName"]
-        text_tree.append(f"{get_prefix(prefix_description)} {arn} : {name}")
+        text_tree.append(f"{get_prefix(prefix_description)}{arn} : {name}")
 
         az_tree = generate_tree(
             prefix_description + [False],
