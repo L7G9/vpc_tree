@@ -75,20 +75,3 @@ def get_prefix(prefix_description):
             prefix += space_or_pipe(prefix_description[i])
 
     return prefix
-
-
-def add_subtree_prefix(text_tree, root_prefix, branch_prefix):
-    """Adds additional prefix to the start of a tree.
-
-    Can be used to update a tree when combining it with other trees.
-
-    Args:
-        text_tree: A list of strings describing a tree structure.
-        root_prefix: A string equal to the prefix to add to the start of the
-        1st item in the list.
-        branch_prefix: A string equal to the prefix to add to the start of the
-        all items in the list after the 1st.
-    """
-    text_tree[0] = root_prefix + text_tree[0]
-    for i in range(1, len(text_tree)):
-        text_tree[i] = branch_prefix + text_tree[i]
