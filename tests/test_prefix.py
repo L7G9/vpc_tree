@@ -5,7 +5,7 @@ from vpc_tree.prefix import (
     PIPE,
     SPACE,
     TEE,
-    elbow_or_tree,
+    elbow_or_tee,
     get_prefix,
     space_or_pipe,
 )
@@ -13,10 +13,10 @@ from vpc_tree.prefix import (
 
 class TestElbowOrTee:
     def test_last_node(self):
-        assert elbow_or_tree(True) == ELBOW
+        assert elbow_or_tee(True) == ELBOW
 
     def test_more_nodes(self):
-        assert elbow_or_tree(False) == TEE
+        assert elbow_or_tee(False) == TEE
 
 
 class TestSpaceOrPipe:

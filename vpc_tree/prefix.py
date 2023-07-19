@@ -29,7 +29,7 @@ PIPE = "│  "
 SPACE = "   "
 
 
-def elbow_or_tree(last_leaf_node):
+def elbow_or_tee(last_leaf_node):
     """Selects ELBOW or TEE.
 
     Args:
@@ -70,7 +70,7 @@ def get_prefix(prefix_description):
     for i in range(len(prefix_description)):
         leaf_node = i == len(prefix_description) - 1
         if leaf_node:
-            prefix += elbow_or_tree(prefix_description[i])
+            prefix += elbow_or_tee(prefix_description[i])
         else:
             prefix += space_or_pipe(prefix_description[i])
 
