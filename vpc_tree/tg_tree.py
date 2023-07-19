@@ -4,7 +4,7 @@
 import boto3
 
 from .prefix import get_prefix
-from .text_tree import generate_tree
+from .text_tree import add_node, add_tree
 
 
 class TGTree:
@@ -25,17 +25,22 @@ class TGTree:
         """
         self.load_balancer_arns = load_balancer_arns
 
-    def generate(self):
+    def generate(self, text_tree, prefix_description):
         """Generate a text based tree describing all the Target Groups linked
         to the Load Balancers in a Virtual Private Cloud.
 
-        Returns:
-            A list of strings containing the text based tree.
+        Args:
+            text_tree: A list of strings to add this subtree to.
+            prefix_description: A list of booleans describing a common prefix
+            to be added to all strings is this text tree.
         """
-        target_groups = self._get_target_groups(self.load_balancer_arns)
 
-        return generate_tree(
-            [], "Target Groups:", target_groups, self._target_group_text
+        add_tree(
+            text_tree,
+            prefix_description,
+            "Target Groups:",
+            self._get_target_groups(self.load_balancer_arns),
+            self._add_tg_tree,
         )
 
     def _get_target_groups(self, load_balancer_arns):
@@ -52,10 +57,8 @@ class TGTree:
 
         return target_groups
 
-    def _target_group_text(self, prefix_description, target_group):
-        """Describe Target Group as a list of strings."""
-        text_tree = []
-
+    def _add_tg_tree(self, text_tree, prefix_description, target_group):
+        """Adds tree describing Target Group to text_tree."""
         arn = target_group["TargetGroupArn"]
         name = target_group["TargetGroupName"]
         prefix = get_prefix(prefix_description)
@@ -63,16 +66,10 @@ class TGTree:
 
         load_balancer_arns = target_group["LoadBalancerArns"]
         if len(load_balancer_arns) > 0:
-            text_tree += generate_tree(
+            add_tree(
+                text_tree,
                 prefix_description + [True],
                 "Load Balancers:",
                 load_balancer_arns,
-                self._load_balancer_text,
+                add_node,
             )
-
-        return text_tree
-
-    def _load_balancer_text(self, prefix_list, load_balancer_arn):
-        """Describe Load Balancer linked to Target Group as a list of
-        strings."""
-        return [f"{get_prefix(prefix_list)}{load_balancer_arn}"]
