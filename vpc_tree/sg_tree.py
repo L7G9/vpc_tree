@@ -4,7 +4,7 @@
 import boto3
 
 from .prefix import get_prefix
-from .text_tree import generate_tree
+from .text_tree import add_tree
 
 
 class SGTree:
@@ -24,15 +24,22 @@ class SGTree:
         """
         self.vpc_id = vpc_id
 
-    def generate(self):
+    def generate(self, text_tree, prefix_description):
         """Generate a text based tree describing all Security Groups linked to
         vpc_id.
 
-        Returns:
-            A list of strings containing the text based tree.
+        Args:
+            text_tree: A list of strings to add this subtree to.
+            prefix_description: A list of booleans describing a common prefix
+            to be added to all strings is this text tree.
         """
-        sgs = self._get_sgs()
-        return generate_tree([], "Security Groups:", sgs, self._sg_text)
+        add_tree(
+            text_tree,
+            prefix_description,
+            "Security Groups:",
+            self._get_sgs(),
+            self._add_sg_tree,
+        )
 
     def _get_sgs(self):
         """Get all Security Groups linked to vpc_id using Boto3."""
@@ -51,34 +58,30 @@ class SGTree:
 
         return sgs
 
-    def _sg_text(self, prefix_description, sg):
-        """Describe a Security Group as a list of strings."""
-        text_tree = []
+    def _add_sg_tree(self, text_tree, prefix_description, sg):
+        """Adds tree describing Security Group to text_tree."""
         id = sg["GroupId"]
         name = sg["GroupName"]
         text_tree.append(f"{get_prefix(prefix_description)}{id} : {name}")
 
-        ingress_tree = generate_tree(
+        add_tree(
+            text_tree,
             prefix_description + [False],
             "Ingress Permissions:",
             sg["IpPermissions"],
-            self._permission_text,
+            self._add_permission_tree,
         )
-        text_tree += ingress_tree
 
-        egress_tree = generate_tree(
+        add_tree(
+            text_tree,
             prefix_description + [True],
             "Egress Permissions:",
             sg["IpPermissionsEgress"],
-            self._permission_text,
+            self._add_permission_tree,
         )
-        text_tree += egress_tree
 
-        return text_tree
-
-    def _permission_text(self, prefix_description, permission):
-        """Describe a Security Group Permission as a list of strings."""
-        text_tree = []
+    def _add_permission_tree(self, text_tree, prefix_description, permission):
+        """Adds tree describing Security Group Permission to text_tree."""
         prefix = get_prefix(prefix_description)
         protocol = permission["IpProtocol"]
         if protocol != "-1":
@@ -88,29 +91,30 @@ class SGTree:
         else:
             text_tree.append(f"{prefix}All")
 
-        ip_tree = generate_tree(
+        add_tree(
+            text_tree,
             prefix_description + [False],
             "IP Ranges:",
             permission["IpRanges"],
-            self._permission_ip_range_text,
+            self._add_ip_range_node,
         )
-        text_tree += ip_tree
 
-        sg_tree = generate_tree(
+        add_tree(
+            text_tree,
             prefix_description + [True],
             "Security Groups:",
             permission["UserIdGroupPairs"],
-            self._permission_sg_text,
+            self._add_sg_node,
         )
-        text_tree += sg_tree
 
-        return text_tree
+    def _add_ip_range_node(self, text_tree, prefix_description, ip_range):
+        """Adds IP Range of Permission to text_tree."""
+        text_tree.append(
+            f"{get_prefix(prefix_description)}{ip_range['CidrIp']}"
+        )
 
-    def _permission_ip_range_text(self, prefix_description, ip_range):
-        """Describe an IP Range as a list of strings."""
-        return [f"{get_prefix(prefix_description)}{ip_range['CidrIp']}"]
-
-    def _permission_sg_text(self, prefix_description, group_pair):
-        """Describe a Security Group linked to a Permission as a list of
-        strings."""
-        return [f"{get_prefix(prefix_description)}{group_pair['GroupId']}"]
+    def _add_sg_node(self, text_tree, prefix_description, group_pair):
+        """Adds Security Group Id of Permission to text_tree."""
+        text_tree.append(
+            f"{get_prefix(prefix_description)}{group_pair['GroupId']}"
+        )
