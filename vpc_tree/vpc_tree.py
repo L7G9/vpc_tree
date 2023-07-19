@@ -3,7 +3,7 @@
 
 import boto3
 
-from . import asg_tree, lb_tree, prefix, sg_tree, subnet_tree, tags, tg_tree
+from . import asg_tree, lb_tree, sg_tree, subnet_tree, tags, tg_tree
 
 
 class VPCTree:
@@ -50,37 +50,27 @@ class VPCTree:
         text_tree.append(self._get_vpc_description(vpc))
 
         sg_tree_generator = sg_tree.SGTree(vpc_id)
-        sg_text_tree = sg_tree_generator.generate()
-        prefix.add_subtree_prefix(sg_text_tree, prefix.TEE, prefix.PIPE)
-        text_tree += sg_text_tree
+        sg_tree_generator.generate(text_tree, [False])
 
         subnet_tree_generator = subnet_tree.SubnetTree(vpc_id)
-        subnet_text_tree = subnet_tree_generator.generate()
-        prefix.add_subtree_prefix(subnet_text_tree, prefix.TEE, prefix.PIPE)
-        text_tree += subnet_text_tree
+        subnet_tree_generator.generate(text_tree, [False])
 
         lb_tree_generator = lb_tree.LBTree(vpc_id)
-        lb_text_tree = lb_tree_generator.generate()
-        prefix.add_subtree_prefix(lb_text_tree, prefix.TEE, prefix.PIPE)
-        text_tree += lb_text_tree
+        lb_tree_generator.generate(text_tree, [False])
 
         subnet_ids = []
         for subnet in subnet_tree_generator.subnets:
             subnet_ids.append(subnet["SubnetId"])
 
         asg_tree_generator = asg_tree.ASGTree(subnet_ids)
-        asg_text_tree = asg_tree_generator.generate()
-        prefix.add_subtree_prefix(asg_text_tree, prefix.TEE, prefix.PIPE)
-        text_tree += asg_text_tree
+        asg_tree_generator.generate(text_tree, [False])
 
         load_balancer_arns = []
         for load_balancer in lb_tree_generator.load_balancers:
             load_balancer_arns.append(load_balancer["LoadBalancerArn"])
 
         tg_tree_generator = tg_tree.TGTree(load_balancer_arns)
-        tg_text_tree = tg_tree_generator.generate()
-        prefix.add_subtree_prefix(tg_text_tree, prefix.ELBOW, prefix.SPACE)
-        text_tree += tg_text_tree
+        tg_tree_generator.generate(text_tree, [True])
 
         return text_tree
 
