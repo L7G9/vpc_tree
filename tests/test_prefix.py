@@ -1,7 +1,14 @@
 # test_prefix.py
 
-from vpc_tree.prefix import (ELBOW, PIPE, SPACE, TEE, elbow_or_tree,
-                             get_prefix, space_or_pipe)
+from vpc_tree.prefix import (
+    ELBOW,
+    PIPE,
+    SPACE,
+    TEE,
+    elbow_or_tree,
+    get_prefix,
+    space_or_pipe,
+)
 
 
 class TestElbowOrTee:
