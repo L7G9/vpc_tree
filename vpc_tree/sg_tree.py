@@ -91,21 +91,27 @@ class SGTree:
         else:
             text_tree.append(f"{prefix}All")
 
-        add_tree(
-            text_tree,
-            prefix_description + [False],
-            "IP Ranges:",
-            permission["IpRanges"],
-            self._add_ip_range_node,
-        )
+        ip_ranges = permission["IpRanges"]
+        user_id_group_pairs = permission["UserIdGroupPairs"]
 
-        add_tree(
-            text_tree,
-            prefix_description + [True],
-            "Security Groups:",
-            permission["UserIdGroupPairs"],
-            self._add_sg_node,
-        )
+        if len(ip_ranges) > 0:
+            is_last_sub_tree = len(user_id_group_pairs) == 0
+            add_tree(
+                text_tree,
+                prefix_description + [is_last_sub_tree],
+                "IP Ranges:",
+                ip_ranges,
+                self._add_ip_range_node,
+            )
+
+        if len(user_id_group_pairs) > 0:
+            add_tree(
+                text_tree,
+                prefix_description + [True],
+                "Security Groups:",
+                user_id_group_pairs,
+                self._add_sg_node,
+            )
 
     def _add_ip_range_node(self, text_tree, prefix_description, ip_range):
         """Adds IP Range of Permission to text_tree."""
