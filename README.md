@@ -14,7 +14,7 @@ The current version VPC Tree displays following resources in this order...
     - Egress Permissions
   - Subnets
     - EC2 Instances
-      - Security Group Ids 
+      - Security Group Ids
   - Load Balancers
     - Availability Zones / Subnets
     - Security Group Ids
@@ -65,82 +65,75 @@ Display a VPC.
 ```
 Example output.
 ```
-vpc-05b4c8dc7474706fa : 10.0.0.0/16
+vpc-04343cc41a1444d92 : 10.0.0.0/16
 ├──Security Groups:
-│   ├──sg-079ac493a323d4bb9 : terraform-20230717100001338400000002
-│   │   ├──Ingress Permissions:
-│   │   │   ├──tcp : 80 : 80
-│   │   │   │   ├──IP Ranges:
-│   │   │   │   │   └──0.0.0.0/0
-│   │   │   │   └──Security Groups:
-│   │   │   └──tcp : 443 : 443
-│   │   │       ├──IP Ranges:
-│   │   │       │   └──0.0.0.0/0
-│   │   │       └──Security Groups:
-│   │   └──Egress Permissions:
-│   │       └──All
-│   │           ├──IP Ranges:
-│   │           │   └──0.0.0.0/0
-│   │           └──Security Groups:
-│   ├──sg-011fb638259dccad6 : default
+│   ├──sg-06ae62fc36ba0629e : default
 │   │   ├──Ingress Permissions:
 │   │   │   └──All
-│   │   │       ├──IP Ranges:
 │   │   │       └──Security Groups:
-│   │   │           └──sg-011fb638259dccad6
+│   │   │           └──sg-06ae62fc36ba0629e
 │   │   └──Egress Permissions:
 │   │       └──All
-│   │           ├──IP Ranges:
-│   │           │   └──0.0.0.0/0
-│   │           └──Security Groups:
-│   └──sg-06573b18b3cc1a5c9 : terraform-20230717100001848000000004
+│   │           └──IP Ranges:
+│   │               └──0.0.0.0/0
+│   ├──sg-0b18401954062279e : terraform-20230718191436297400000002
+│   │   ├──Ingress Permissions:
+│   │   │   ├──tcp : 80 : 80
+│   │   │   │   └──IP Ranges:
+│   │   │   │       └──0.0.0.0/0
+│   │   │   └──tcp : 443 : 443
+│   │   │       └──IP Ranges:
+│   │   │           └──0.0.0.0/0
+│   │   └──Egress Permissions:
+│   │       └──All
+│   │           └──IP Ranges:
+│   │               └──0.0.0.0/0
+│   └──sg-05fd107ff62d3bbde : terraform-20230718191436884600000004
 │       ├──Ingress Permissions:
 │       │   └──tcp : 80 : 80
-│       │       ├──IP Ranges:
 │       │       └──Security Groups:
-│       │           └──sg-079ac493a323d4bb9
+│       │           └──sg-0b18401954062279e
 │       └──Egress Permissions:
 │           └──All
-│               ├──IP Ranges:
-│               │   └──0.0.0.0/0
-│               └──Security Groups:
+│               └──IP Ranges:
+│                   └──0.0.0.0/0
 ├──Subnets:
-│   ├──subnet-0dc16b4f7ff0813be : swa-03-public-1 : eu-west-2a : 10.0.1.0/24
-│   ├──subnet-08b1c8a8689bdeab1 : swa-03-public-2 : eu-west-2b : 10.0.2.0/24
-│   ├──subnet-0d58994416f73e388 : swa-03-public-3 : eu-west-2c : 10.0.3.0/24
-│   ├──subnet-0b89af84321528afa : swa-03-private-1 : eu-west-2a : 10.0.4.0/24
+│   ├──subnet-0be8f918fc310f296 : swa-03-public-1 : eu-west-2a : 10.0.1.0/24
+│   ├──subnet-0051913a0627ae156 : swa-03-public-2 : eu-west-2b : 10.0.2.0/24
+│   ├──subnet-021e1456ed9fbbae0 : swa-03-public-3 : eu-west-2c : 10.0.3.0/24
+│   ├──subnet-06c42f6b24739af6c : swa-03-private-1 : eu-west-2a : 10.0.4.0/24
+│   ├──subnet-093ae19710888d155 : swa-03-private-2 : eu-west-2b : 10.0.5.0/24
 │   │   └──Instances:
-│   │       └──i-0b82a8ce5ac40dc13 : swa-03-main : ami-0c5539781ec0e23ab : t2.micro : running : 10.0.4.147
+│   │       └──i-00b5696afde11b967 : swa-03-main : ami-0c5539781ec0e23ab : t2.micro : running : 10.0.5.84
 │   │           └──SecurityGroups:
-│   │               └──sg-06573b18b3cc1a5c9
-│   ├──subnet-06fe96013b9194760 : swa-03-private-2 : eu-west-2b : 10.0.5.0/24
-│   └──subnet-0183f0deed194c5fb : swa-03-private-3 : eu-west-2c : 10.0.6.0/24
+│   │               └──sg-05fd107ff62d3bbde
+│   └──subnet-09215a82dbe4a4e22 : swa-03-private-3 : eu-west-2c : 10.0.6.0/24
 ├──Load Balancers:
-│   └──arn:aws:elasticloadbalancing:eu-west-2:382801774683:loadbalancer/app/swa-03-main/a7520e6004f53e41 : swa-03-main
+│   └──arn:aws:elasticloadbalancing:eu-west-2:382801774683:loadbalancer/app/swa-03-main/2c28fd912e07e971 : swa-03-main
 │       ├──Availability Zones:
-│       │   ├──eu-west-2b : subnet-08b1c8a8689bdeab1
-│       │   ├──eu-west-2c : subnet-0d58994416f73e388
-│       │   └──eu-west-2a : subnet-0dc16b4f7ff0813be
+│       │   ├──eu-west-2b : subnet-0051913a0627ae156
+│       │   ├──eu-west-2c : subnet-021e1456ed9fbbae0
+│       │   └──eu-west-2a : subnet-0be8f918fc310f296
 │       └──Security Groups:
-│           └──sg-079ac493a323d4bb9
+│           └──sg-0b18401954062279e
 ├──Auto Scaling Groups:
-│   └──arn:aws:autoscaling:eu-west-2:382801774683:autoScalingGroup:70d2e826-e0e4-47d7-9d95-cabba63d872d:autoScalingGroupName/swa-03-main : swa-03-main
+│   └──arn:aws:autoscaling:eu-west-2:382801774683:autoScalingGroup:67b93036-7a0d-462e-87bc-14c1b356b512:autoScalingGroupName/swa-03-main : swa-03-main
 │       ├──MinSize = 1 : MaxSize = 3
 │       ├──Launch Configuration
-│       │   └──swa-03-asg-instance-20230717100003337900000006
+│       │   └──swa-03-asg-instance-20230718191438269400000006
 │       ├──Subnets:
-│       │   ├──subnet-06fe96013b9194760
-│       │   ├──subnet-0183f0deed194c5fb
-│       │   └──subnet-0b89af84321528afa
+│       │   ├──subnet-06c42f6b24739af6c
+│       │   ├──subnet-093ae19710888d155
+│       │   └──subnet-09215a82dbe4a4e22
 │       ├──Instances:
-│       │   └──i-0b82a8ce5ac40dc13
+│       │   └──i-00b5696afde11b967
 │       ├──Load Balancers:
 │       └──Target Groups:
-│           └──arn:aws:elasticloadbalancing:eu-west-2:382801774683:targetgroup/tf-20230717100001345800000003/be4f992c74424036
+│           └──arn:aws:elasticloadbalancing:eu-west-2:382801774683:targetgroup/tf-20230718191436315100000003/4e8e753866fd61e3
 └──Target Groups:
-    └──arn:aws:elasticloadbalancing:eu-west-2:382801774683:targetgroup/tf-20230717100001345800000003/be4f992c74424036 : tf-20230717100001345800000003
+    └──arn:aws:elasticloadbalancing:eu-west-2:382801774683:targetgroup/tf-20230718191436315100000003/4e8e753866fd61e3 : tf-20230718191436315100000003
         └──Load Balancers:
-            └──arn:aws:elasticloadbalancing:eu-west-2:382801774683:loadbalancer/app/swa-03-main/a7520e6004f53e41
+            └──arn:aws:elasticloadbalancing:eu-west-2:382801774683:loadbalancer/app/swa-03-main/2c28fd912e07e971
 ```
 
 ## Author
