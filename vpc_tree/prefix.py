@@ -16,17 +16,17 @@ are more sibling nodes in the same subtree.
 
 Examples.
 - [False]            = "├──"
-- [False, True]      = "│   └──"
+- [False, True]      = "│  └──"
 - [True]             = "└──"
-- [True, False]      = "    ├──"
-- [True, True]       = "    └──"
-- [True, True, True] = "        └──"
+- [True, False]      = "   ├──"
+- [True, True]       = "   └──"
+- [True, True, True] = "      └──"
 """
 
 ELBOW = "└──"
 TEE = "├──"
-PIPE = "│   "
-SPACE = "    "
+PIPE = "│  "
+SPACE = "   "
 
 
 def elbow_or_tree(last_leaf_node):
