@@ -5,7 +5,7 @@ import boto3
 
 from .prefix import get_prefix
 from .tags import get_tag_value
-from .text_tree import generate_tree
+from .text_tree import add_tree
 
 
 class SubnetTree:
@@ -27,17 +27,25 @@ class SubnetTree:
         self.vpc_id = vpc_id
         self.subnets = []
 
-    def generate(self):
+    def generate(self, text_tree, prefix_description):
         """Generate a text based tree describing all Subnets linked to vpc_id.
 
-        Returns:
-            A list of strings containing the text based tree.
+        Args:
+            text_tree: A list of strings to add this subtree to.
+            prefix_description: A list of booleans describing a common prefix
+            to be added to all strings is this text tree.
         """
         self.subnets = sorted(
             self._get_subnets(), key=lambda x: x["CidrBlock"]
         )
 
-        return generate_tree([], "Subnets:", self.subnets, self._subnet_text)
+        add_tree(
+            text_tree,
+            prefix_description,
+            "Subnets:",
+            self.subnets,
+            self._add_subnet_tree,
+        )
 
     def _get_subnets(self):
         """Get all Subnets linked to vpc_id using Boto3."""
@@ -74,10 +82,8 @@ class SubnetTree:
 
         return instances
 
-    def _subnet_text(self, prefix_description, subnet):
-        """Describe Subnet as a list of strings."""
-        text_tree = []
-
+    def _add_subnet_tree(self, text_tree, prefix_description, subnet):
+        """Adds tree describing Subnet to text_tree."""
         prefix = get_prefix(prefix_description)
         id = subnet["SubnetId"]
         name = get_tag_value(subnet, "Name")
@@ -92,23 +98,18 @@ class SubnetTree:
         instances = self._get_instances(id)
         if len(instances) > 0:
             instances = sorted(instances, key=lambda x: x["PrivateIpAddress"])
-            instance_tree = generate_tree(
+            add_tree(
+                text_tree,
                 prefix_description + [True],
                 "Instances:",
                 instances,
-                self._instance_text,
+                self._add_instance_tree,
             )
-            text_tree += instance_tree
 
-        return text_tree
-
-    def _instance_text(self, prefix_description, instance):
-        """Describe Instance in Subnet as a list of strings."""
-        text_tree = []
-
+    def _add_instance_tree(self, text_tree, prefix_description, instance):
+        """Adds tree describing Instance in Subnet to text_tree."""
         prefix = get_prefix(prefix_description)
         id = instance["InstanceId"]
-        name = None
         name = get_tag_value(instance, "Name")
         image = instance["ImageId"]
         type = instance["InstanceType"]
@@ -124,16 +125,16 @@ class SubnetTree:
                 f"{prefix}{id} : {name} : {image} : {type} : {state} : {ip}"
             )
 
-        sg_tree = generate_tree(
+        add_tree(
+            text_tree,
             prefix_description + [True],
             "SecurityGroups:",
             instance["SecurityGroups"],
-            self._sg_text,
+            self._add_sg_node,
         )
-        text_tree += sg_tree
 
-        return text_tree
-
-    def _sg_text(self, prefix_description, security_group):
-        """Describe Security Group linked to Instance as a list of strings."""
-        return [f"{get_prefix(prefix_description)}{security_group['GroupId']}"]
+    def _add_sg_node(self, text_tree, prefix_description, security_group):
+        """Adds Id of Security Group linked to Instance to text_tree."""
+        text_tree.append(
+            f"{get_prefix(prefix_description)}{security_group['GroupId']}"
+        )
