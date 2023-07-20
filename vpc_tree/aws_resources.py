@@ -8,7 +8,7 @@ import boto3
 def get_vpcs():
     """Get all Virtual Private Clouds in AWS account.
 
-    returns:
+    Returns:
         A list of dictionaries containing the details of the Virtual Private
         Clouds.
     """
@@ -23,7 +23,7 @@ def get_vpc(vpc_id):
     Args:
         vpc_id: A string containing the Virtual Private Cloud Id to find.
 
-    returns:
+    Returns:
         A dictionary containing the details of the Virtual Private
         Cloud.
     """
@@ -40,7 +40,7 @@ def get_security_groups(vpc_id):
     Args:
         vpc_id: A string containing the Virtual Private Cloud Id.
 
-    returns:
+    Returns:
         A list of dictionaries containing the details of the Security Groups.
     """
     sgs = []
@@ -65,7 +65,7 @@ def get_subnets(vpc_id):
     Args:
         vpc_id: A string containing the Virtual Private Cloud Id.
 
-    returns:
+    Returns:
         A list of dictionaries containing the details of the Subnets.
     """
     subnets = []
@@ -91,7 +91,7 @@ def get_subnet_ids(subnets):
         subnets: A list of dictionaries containing the details of the
         Subnets.
 
-    returns:
+    Returns:
         A list of strings containing the Subnet Ids."""
     subnet_ids = []
     for subnet in subnets:
@@ -100,17 +100,25 @@ def get_subnet_ids(subnets):
     return subnet_ids
 
 
-def get_instances():
-    """Get all Instances in VPC.
+def get_instances(vpc_id):
+    """Get all Instances in Virtual Private Cloud.
 
-    returns:
+    Args:
+        vpc_id: A string containing Virtual Private Cloud Id.
+
+    Returns:
         A list of dictionaries containing the details of the Instances.
     """
     instances = []
 
     client = boto3.client("ec2")
     paginator = client.get_paginator("describe_instances")
-    page_iterator = paginator.paginate()
+    parameters = {
+            "Filters": [
+                {"Name": "vpc-id", "Values": [vpc_id]},
+            ]
+        }
+    page_iterator = paginator.paginate(**parameters)
     for page in page_iterator:
         for reservations in page["Reservations"]:
             instances += reservations["Instances"]
@@ -126,7 +134,7 @@ def filter_instances_by_subnet(instances, subnet_id):
         Instances to filter.
         subnet_id: A string containing the Subnet Id to filter by.
 
-    returns:
+    Returns:
         A list of dictionaries containing the details of the filtered
         Instances.
     """
@@ -136,7 +144,7 @@ def filter_instances_by_subnet(instances, subnet_id):
 def get_load_balancers():
     """Get all Load Balancers.
 
-    returns:
+    Returns:
         A list of dictionaries containing the details of the Load Balancers.
     """
     lbs = []
@@ -159,7 +167,7 @@ def filter_load_balancers_by_vpc(load_balancers, vpc_id):
         Load Balancers to filter.
         vpc_id: A string containing the Virtual Private Cloud Id to filter by.
 
-    returns:
+    Returns:
         A list of dictionaries containing the details of the filtered Auto
         Scaling Groups."""
     return list(filter(lambda d: d["VpcId"] == vpc_id, load_balancers))
@@ -172,7 +180,7 @@ def get_load_balancer_arns(load_balancers):
         load_balancers: A list of dictionaries containing the details of the
         Load Balancers.
 
-    returns:
+    Returns:
         A list of strings containing the Load Balancer ARNs.
     """
     load_balancer_arns = []
@@ -185,7 +193,7 @@ def get_load_balancer_arns(load_balancers):
 def get_auto_scaling_groups():
     """Get all Auto Scaling Groups.
 
-    returns:
+    Returns:
         A list of dictionaries containing the details of the Auto Scaling
         Groups.
     """
@@ -209,7 +217,7 @@ def filter_auto_scaling_groups_by_subnets(auto_scaling_groups, subnet_ids):
         the Auto Scaling Groups to filter.
         subnet_ids: A list of strings containing the Subnet Ids to filter by.
 
-    returns:
+    Returns:
         A list of dictionaries containing the details of the filtered Auto
         Scaling Groups.
     """
@@ -229,7 +237,7 @@ def get_target_groups(load_balancer_arns):
         load_balancer_arns: A list of strings containing the Load Balancers
         ARNs.
 
-    returns:
+    Returns:
         A list of dictionaries containing the details of the Target Groups.
     """
     target_groups = []
