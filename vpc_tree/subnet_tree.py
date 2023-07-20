@@ -4,25 +4,26 @@
 from .prefix import get_prefix
 from .tags import get_tag_value
 from .text_tree import add_tree
-from .aws_resources import get_instances
+from .aws_resources import filter_instances_by_subnet
 
 
 class SubnetTree:
     """Get details of AWS Subnets and represent them in a tree structure.
 
     Attributes:
-        vpc_id: A string containing the Id of a Virtual Private Cloud.
-        subnets: A list of dictionaries containing the Subnets found when
-        generate is called.
+        subnets: A list of dictionaries containing Subnets from Boto3.
+        instances: A list of dictionaries containing Instances from Boto3.
     """
 
-    def __init__(self, subnets):
+    def __init__(self, subnets, instances):
         """Initializes instance.
 
         Args:
             subnets: A list of dictionaries containing Subnets from Boto3.
+            instances: A list of dictionaries containing Instances from Boto3.
         """
         self.subnets = subnets
+        self.instances = instances
 
     def generate(self, text_tree, prefix_description):
         """Generate a text based tree describing all Subnets linked to vpc_id.
@@ -57,7 +58,7 @@ class SubnetTree:
         else:
             text_tree.append(f"{prefix}{id} : {name} : {az} : {cidr}")
 
-        instances = get_instances(id)
+        instances = filter_instances_by_subnet(self.instances, id)
         if len(instances) > 0:
             instances = sorted(instances, key=lambda x: x["PrivateIpAddress"])
             add_tree(
