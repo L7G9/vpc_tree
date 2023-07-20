@@ -1,11 +1,10 @@
 # subnet_tree.ph
 """VPC Tree application's Subnet functionality."""
 
-import boto3
-
 from .prefix import get_prefix
 from .tags import get_tag_value
 from .text_tree import add_tree
+from .aws_resources import get_instances
 
 
 class SubnetTree:
@@ -17,15 +16,13 @@ class SubnetTree:
         generate is called.
     """
 
-    def __init__(self, vpc_id):
+    def __init__(self, subnets):
         """Initializes instance.
 
         Args:
-            vpc_id: A string containing the id Virtual Private Cloud which all
-            the Subnets should be linked to.
+            subnets: A list of dictionaries containing Subnets from Boto3.
         """
-        self.vpc_id = vpc_id
-        self.subnets = []
+        self.subnets = subnets
 
     def generate(self, text_tree, prefix_description):
         """Generate a text based tree describing all Subnets linked to vpc_id.
@@ -36,7 +33,7 @@ class SubnetTree:
             to be added to all strings is this text tree.
         """
         self.subnets = sorted(
-            self._get_subnets(), key=lambda x: x["CidrBlock"]
+            self.subnets, key=lambda x: x["CidrBlock"]
         )
 
         add_tree(
@@ -46,41 +43,6 @@ class SubnetTree:
             self.subnets,
             self._add_subnet_tree,
         )
-
-    def _get_subnets(self):
-        """Get all Subnets linked to vpc_id using Boto3."""
-        subnets = []
-
-        client = boto3.client("ec2")
-        paginator = client.get_paginator("describe_subnets")
-        parameters = {
-            "Filters": [
-                {"Name": "vpc-id", "Values": [self.vpc_id]},
-            ]
-        }
-        page_iterator = paginator.paginate(**parameters)
-        for page in page_iterator:
-            subnets += page["Subnets"]
-
-        return subnets
-
-    def _get_instances(self, subnet_id):
-        """Get all Instances linked to subnet_id using Boto3."""
-        instances = []
-
-        client = boto3.client("ec2")
-        paginator = client.get_paginator("describe_instances")
-        parameters = {
-            "Filters": [
-                {"Name": "subnet-id", "Values": [subnet_id]},
-            ]
-        }
-        page_iterator = paginator.paginate(**parameters)
-        for page in page_iterator:
-            for reservations in page["Reservations"]:
-                instances += reservations["Instances"]
-
-        return instances
 
     def _add_subnet_tree(self, text_tree, prefix_description, subnet):
         """Adds tree describing Subnet to text_tree."""
@@ -95,7 +57,7 @@ class SubnetTree:
         else:
             text_tree.append(f"{prefix}{id} : {name} : {az} : {cidr}")
 
-        instances = self._get_instances(id)
+        instances = get_instances(id)
         if len(instances) > 0:
             instances = sorted(instances, key=lambda x: x["PrivateIpAddress"])
             add_tree(
