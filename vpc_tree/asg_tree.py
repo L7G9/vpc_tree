@@ -6,8 +6,7 @@ from .text_tree import add_node, add_tree
 
 
 class ASGTree:
-    """Gets details of AWS Auto Scaling Groups and represents them in a tree
-    structure.
+    """Generates a text tree representation of AWS Auto Scaling Groups.
 
     Attributes:
         auto_scaling_groups: A list of dictionaries containing Auto Scaling

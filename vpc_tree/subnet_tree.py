@@ -8,7 +8,8 @@ from .aws_resources import filter_instances_by_subnet
 
 
 class SubnetTree:
-    """Get details of AWS Subnets and represent them in a tree structure.
+    """Generates a text tree representation of AWS Subnets and their
+    Instances.
 
     Attributes:
         subnets: A list of dictionaries containing Subnets from Boto3.
@@ -26,7 +27,7 @@ class SubnetTree:
         self.instances = instances
 
     def generate(self, text_tree, prefix_description):
-        """Generate a text based tree describing all Subnets linked to vpc_id.
+        """Generate a text based tree describing the Subnets and Instances.
 
         Args:
             text_tree: A list of strings to add this subtree to.

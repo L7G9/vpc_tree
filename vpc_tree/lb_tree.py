@@ -6,8 +6,7 @@ from .text_tree import add_node, add_tree
 
 
 class LBTree:
-    """Gets details of AWS Load Balancers and represents them in a tree
-    structure.
+    """Generates a text tree representation of AWS Load Balancers.
 
     Attributes:
         load_balancers: A list of dictionaries containing Load Balancers from
@@ -24,8 +23,7 @@ class LBTree:
         self.load_balancers = load_balancers
 
     def generate(self, text_tree, prefix_description):
-        """Generate a text based tree describing all Load Balancers linked to
-        vpc_id.
+        """Generate a text based tree describing the Load Balancers.
 
         Args:
             text_tree: A list of strings to add this subtree to.

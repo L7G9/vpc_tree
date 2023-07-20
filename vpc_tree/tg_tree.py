@@ -23,8 +23,7 @@ class TGTree:
         self.target_groups = target_groups
 
     def generate(self, text_tree, prefix_description):
-        """Generate a text based tree describing all the Target Groups linked
-        to the Load Balancers in a Virtual Private Cloud.
+        """Generate a text based tree describing the Target Groups.
 
         Args:
             text_tree: A list of strings to add this subtree to.

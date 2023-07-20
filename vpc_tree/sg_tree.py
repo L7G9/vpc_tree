@@ -6,11 +6,11 @@ from .text_tree import add_tree
 
 
 class SGTree:
-    """Gets details of AWS Security Groups and represents them in a tree
-    structure.
+    """Generates a text tree representation of AWS Security Groups.
 
     Attributes:
-        vpc_id: A string containing the Id of a Virtual Private Cloud.
+        security_groups: A list of dictionaries containing Security Groups
+        from Boto3.
     """
 
     def __init__(self, security_groups):
@@ -23,8 +23,7 @@ class SGTree:
         self.security_groups = security_groups
 
     def generate(self, text_tree, prefix_description):
-        """Generate a text based tree describing all Security Groups linked to
-        vpc_id.
+        """Generate a text based tree describing the Security Groups.
 
         Args:
             text_tree: A list of strings to add this subtree to.
