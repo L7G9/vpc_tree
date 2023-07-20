@@ -2,8 +2,15 @@
 """VPC Tree main module."""
 
 import boto3
-
-from . import asg_tree, lb_tree, sg_tree, subnet_tree, tags, tg_tree
+from . import (
+    asg_tree,
+    aws_resources,
+    lb_tree,
+    sg_tree,
+    subnet_tree,
+    tags,
+    tg_tree,
+)
 
 
 class VPCTree:
@@ -11,7 +18,7 @@ class VPCTree:
 
     def display_vpc_list(self):
         """Print a list of all Virtual Private Clouds."""
-        vpcs = self._generate_vpc_list()
+        vpcs = self._generate_vpc_list(aws_resources.get_vpcs())
         for entry in vpcs:
             print(entry)
 
@@ -22,54 +29,66 @@ class VPCTree:
             vpc_id: A string containing the Id of the Virtual Private Cloud to
             display.
         """
-        text_tree = self._vpc_text(vpc_id)
+        text_tree = self._vpc_text(aws_resources.get_vpc(vpc_id))
         for entry in text_tree:
             print(entry)
 
-    def _generate_vpc_list(self):
+    def _generate_vpc_list(self, vpcs):
         """Return a list of Virtual Private Clouds in AWS account."""
-        vpcs = []
+        text = []
 
-        client = boto3.client("ec2")
-        vpc_response = client.describe_vpcs()
-        for vpc in vpc_response["Vpcs"]:
+        for vpc in vpcs:
             vpc_id = vpc["VpcId"]
-            name = tags.get_tag_value(vpc["Tags"], "Name")
+            name = tags.get_tag_value(vpc, "Name")
+
             if name is None:
-                vpcs.append(f"VPC : {vpc_id}")
+                text.append(f"{vpc_id}")
             else:
-                vpcs.append(f"VPC : {name} : {vpc_id}")
+                text.append(f"{name} : {vpc_id}")
 
-        return vpcs
+        return text
 
-    def _vpc_text(self, vpc_id):
+    def _vpc_text(self, vpc):
         """Describe Virtual Private Cloud as a list of strings."""
         text_tree = []
 
-        vpc = self._get_vpc(vpc_id)
         text_tree.append(self._get_vpc_description(vpc))
 
-        sg_tree_generator = sg_tree.SGTree(vpc_id)
+        vpc_id = vpc["VpcId"]
+
+        sg_tree_generator = sg_tree.SGTree(
+            aws_resources.get_security_groups(vpc_id)
+        )
         sg_tree_generator.generate(text_tree, [False])
 
-        subnet_tree_generator = subnet_tree.SubnetTree(vpc_id)
+        subnets = aws_resources.get_subnets(vpc_id)
+        instances = aws_resources.get_instances(vpc_id)
+        subnet_tree_generator = subnet_tree.SubnetTree(subnets, instances)
         subnet_tree_generator.generate(text_tree, [False])
 
-        lb_tree_generator = lb_tree.LBTree(vpc_id)
+        load_balancers = aws_resources.get_load_balancers()
+        load_balancers = aws_resources.filter_load_balancers_by_vpc(
+            load_balancers, vpc_id
+        )
+        lb_tree_generator = lb_tree.LBTree(load_balancers)
         lb_tree_generator.generate(text_tree, [False])
 
-        subnet_ids = []
-        for subnet in subnet_tree_generator.subnets:
-            subnet_ids.append(subnet["SubnetId"])
-
-        asg_tree_generator = asg_tree.ASGTree(subnet_ids)
+        auto_scaling_groups = aws_resources.get_auto_scaling_groups()
+        subnet_ids = aws_resources.get_subnet_ids(subnets)
+        auto_scaling_groups = (
+            aws_resources.filter_auto_scaling_groups_by_subnets(
+                auto_scaling_groups, subnet_ids
+            )
+        )
+        asg_tree_generator = asg_tree.ASGTree(auto_scaling_groups)
         asg_tree_generator.generate(text_tree, [False])
 
-        load_balancer_arns = []
-        for load_balancer in lb_tree_generator.load_balancers:
-            load_balancer_arns.append(load_balancer["LoadBalancerArn"])
-
-        tg_tree_generator = tg_tree.TGTree(load_balancer_arns)
+        load_balancer_arns = aws_resources.get_load_balancer_arns(
+            load_balancers
+        )
+        tg_tree_generator = tg_tree.TGTree(
+            aws_resources.get_target_groups(load_balancer_arns)
+        )
         tg_tree_generator.generate(text_tree, [True])
 
         return text_tree
