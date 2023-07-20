@@ -1,8 +1,6 @@
 # lb_tree.py
 """VPC Tree application's Load Balancer functionality."""
 
-import boto3
-
 from .prefix import get_prefix
 from .text_tree import add_node, add_tree
 
@@ -12,20 +10,18 @@ class LBTree:
     structure.
 
     Attributes:
-        vpc_id: A string containing the id of a Virtual Private Cloud.
-        load_balancers: A list of dictionaries containing details of all the
-        Load Balancers linked to vpc_id.
+        load_balancers: A list of dictionaries containing Load Balancers from
+        Boto3.
     """
 
-    def __init__(self, vpc_id):
+    def __init__(self, load_balancers):
         """Initializes instance.
 
         Args:
-            vpc_id: A strings containing the id Virtual Private Cloud which
-            all the Load Balancers should be linked to.
+            load_balancers: A list of dictionaries containing Load Balancers
+            from Boto3.
         """
-        self.vpc_id = vpc_id
-        self.load_balancers = []
+        self.load_balancers = load_balancers
 
     def generate(self, text_tree, prefix_description):
         """Generate a text based tree describing all Load Balancers linked to
@@ -36,8 +32,6 @@ class LBTree:
             prefix_description: A list of booleans describing a common prefix
             to be added to all strings is this text tree.
         """
-        self.load_balancers = self._filter_by_vpc(self._get_lbs(), self.vpc_id)
-
         add_tree(
             text_tree,
             prefix_description,
@@ -45,23 +39,6 @@ class LBTree:
             self.load_balancers,
             self._add_lb_tree,
         )
-
-    def _get_lbs(self):
-        """Get all Load Balancers using boto3."""
-        lbs = []
-
-        client = boto3.client("elbv2")
-        paginator = client.get_paginator("describe_load_balancers")
-        page_iterator = paginator.paginate()
-
-        for page in page_iterator:
-            lbs += page["LoadBalancers"]
-
-        return lbs
-
-    def _filter_by_vpc(self, lbs, vpc_id):
-        """Filter Load Balancers by Virtual Private Cloud Id."""
-        return list(filter(lambda d: d["VpcId"] == vpc_id, lbs))
 
     def _add_lb_tree(self, text_tree, prefix_description, lb):
         """Adds tree describing Load Balancer to text_tree."""
