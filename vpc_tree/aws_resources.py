@@ -19,7 +19,7 @@ def get_vpc(vpc_id):
     return response["Vpcs"][0]
 
 
-def get_sgs(vpc_id):
+def get_security_groups(vpc_id):
     """Get all Security Groups linked to vpc_id."""
     sgs = []
 
@@ -64,18 +64,13 @@ def get_subnet_ids(subnets):
     return subnet_ids
 
 
-def get_instances(subnet_id):
-    """Get all Instances linked to subnet_id."""
+def get_instances():
+    """Get all Instances in VPC."""
     instances = []
 
     client = boto3.client("ec2")
     paginator = client.get_paginator("describe_instances")
-    parameters = {
-        "Filters": [
-            {"Name": "subnet-id", "Values": [subnet_id]},
-        ]
-    }
-    page_iterator = paginator.paginate(**parameters)
+    page_iterator = paginator.paginate()
     for page in page_iterator:
         for reservations in page["Reservations"]:
             instances += reservations["Instances"]
@@ -83,7 +78,12 @@ def get_instances(subnet_id):
     return instances
 
 
-def get_lbs():
+def filter_instances_by_subnet(instances, subnet_id):
+    """Filter Instances by subnet_id."""
+    return list(filter(lambda d: d["SubnetId"] == subnet_id, instances))
+
+
+def get_load_balancers():
     """Get all Load Balancers."""
     lbs = []
 
@@ -97,12 +97,12 @@ def get_lbs():
     return lbs
 
 
-def filter_lbs_by_vpc(lbs, vpc_id):
+def filter_load_balancers_by_vpc(load_balancers, vpc_id):
     """Filter Load Balancers by vpc_id."""
-    return list(filter(lambda d: d["VpcId"] == vpc_id, lbs))
+    return list(filter(lambda d: d["VpcId"] == vpc_id, load_balancers))
 
 
-def get_lb_arns(lbs):
+def get_load_balancer_arns(lbs):
     """Get list of Load Balancer arns."""
     load_balancer_arns = []
     for load_balancer in lbs:
@@ -111,7 +111,7 @@ def get_lb_arns(lbs):
     return load_balancer_arns
 
 
-def get_asgs():
+def get_auto_scaling_groups():
     """Get all Auto Scaling Groups."""
     asgs = []
 
@@ -125,18 +125,18 @@ def get_asgs():
     return asgs
 
 
-def filter_asgs_by_subnets(asgs, vpc_subnet_ids):
+def filter_auto_scaling_groups_by_subnets(auto_scaling_groups, subnet_ids):
     """Filter Auto Scaling Groups by vpc_subnet_ids."""
     filtered_asgs = []
-    for asg in asgs:
+    for asg in auto_scaling_groups:
         asg_subnet_ids = asg["VPCZoneIdentifier"].split(",")
-        if any(id in vpc_subnet_ids for id in asg_subnet_ids):
+        if any(id in subnet_ids for id in asg_subnet_ids):
             filtered_asgs.append(asg)
 
     return filtered_asgs
 
 
-def _get_target_groups(load_balancer_arns):
+def get_target_groups(load_balancer_arns):
     """Get all Target Groups linked to load_balancer_arns."""
     target_groups = []
 
