@@ -22,7 +22,7 @@ def auto_scaling_groups():
 
 
 @pytest.mark.usefixtures("auto_scaling_groups")
-class TestSubnetTree:
+class TestASGTree:
     def test_generate(self, auto_scaling_groups):
         asg_tree_generator = ASGTree(auto_scaling_groups)
         text_tree = []

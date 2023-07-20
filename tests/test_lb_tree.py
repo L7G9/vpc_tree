@@ -30,7 +30,7 @@ def load_balancers():
 
 
 @pytest.mark.usefixtures("load_balancers")
-class TestSubnetTree:
+class TestLBTree:
     def test_generate(self, load_balancers):
         lb_tree_generator = LBTree(load_balancers)
         text_tree = []
