@@ -1,17 +1,32 @@
 # aws_resources.py
+"""VPC Tree application's functionality to retrieve and filter resources from
+Boto3."""
 
 import boto3
 
 
 def get_vpcs():
-    """Return a list of Virtual Private Clouds in AWS account."""
+    """Get all Virtual Private Clouds in AWS account.
+
+    returns:
+        A list of dictionaries containing the details of the Virtual Private
+        Clouds.
+    """
     client = boto3.client("ec2")
     vpc_response = client.describe_vpcs()
     return vpc_response["Vpcs"]
 
 
 def get_vpc(vpc_id):
-    """Get Virtual Private Cloud linked to vpc_id."""
+    """Get a single Virtual Private Cloud.
+
+    Args:
+        vpc_id: A string containing the Virtual Private Cloud Id to find.
+
+    returns:
+        A dictionary containing the details of the Virtual Private
+        Cloud.
+    """
     client = boto3.client("ec2")
     response = client.describe_vpcs(
         VpcIds=[vpc_id],
@@ -20,7 +35,14 @@ def get_vpc(vpc_id):
 
 
 def get_security_groups(vpc_id):
-    """Get all Security Groups linked to vpc_id."""
+    """Get all Security Groups linked to a Virtual Private Cloud.
+
+    Args:
+        vpc_id: A string containing the Virtual Private Cloud Id.
+
+    returns:
+        A list of dictionaries containing the details of the Security Groups.
+    """
     sgs = []
 
     client = boto3.client("ec2")
@@ -38,7 +60,14 @@ def get_security_groups(vpc_id):
 
 
 def get_subnets(vpc_id):
-    """Get all Subnets linked to vpc_id."""
+    """Get all Subnets linked to a Virtual Private Cloud.
+
+    Args:
+        vpc_id: A string containing the Virtual Private Cloud Id.
+
+    returns:
+        A list of dictionaries containing the details of the Subnets.
+    """
     subnets = []
 
     client = boto3.client("ec2")
@@ -56,7 +85,14 @@ def get_subnets(vpc_id):
 
 
 def get_subnet_ids(subnets):
-    """Get list of subnet ids."""
+    """Get list of Subnet Ids.
+
+    Args:
+        subnets: A list of dictionaries containing the details of the
+        Subnets.
+
+    returns:
+        A list of strings containing the Subnet Ids."""
     subnet_ids = []
     for subnet in subnets:
         subnet_ids.append(subnet["SubnetId"])
@@ -65,7 +101,11 @@ def get_subnet_ids(subnets):
 
 
 def get_instances():
-    """Get all Instances in VPC."""
+    """Get all Instances in VPC.
+
+    returns:
+        A list of dictionaries containing the details of the Instances.
+    """
     instances = []
 
     client = boto3.client("ec2")
@@ -79,12 +119,26 @@ def get_instances():
 
 
 def filter_instances_by_subnet(instances, subnet_id):
-    """Filter Instances by subnet_id."""
+    """Filter Instances by Subnet.
+
+    Args:
+        instances: A list of dictionaries containing the details of the
+        Instances to filter.
+        subnet_id: A string containing the Subnet Id to filter by.
+
+    returns:
+        A list of dictionaries containing the details of the filtered
+        Instances.
+    """
     return list(filter(lambda d: d["SubnetId"] == subnet_id, instances))
 
 
 def get_load_balancers():
-    """Get all Load Balancers."""
+    """Get all Load Balancers.
+
+    returns:
+        A list of dictionaries containing the details of the Load Balancers.
+    """
     lbs = []
 
     client = boto3.client("elbv2")
@@ -98,21 +152,43 @@ def get_load_balancers():
 
 
 def filter_load_balancers_by_vpc(load_balancers, vpc_id):
-    """Filter Load Balancers by vpc_id."""
+    """Filter Load Balancers by Virtual Private Cloud.
+
+    Args:
+        load_balancers: A list of dictionaries containing the details of the
+        Load Balancers to filter.
+        vpc_id: A string containing the Virtual Private Cloud Id to filter by.
+
+    returns:
+        A list of dictionaries containing the details of the filtered Auto
+        Scaling Groups."""
     return list(filter(lambda d: d["VpcId"] == vpc_id, load_balancers))
 
 
-def get_load_balancer_arns(lbs):
-    """Get list of Load Balancer arns."""
+def get_load_balancer_arns(load_balancers):
+    """Get list of Load Balancer ARNs.
+
+    Args:
+        load_balancers: A list of dictionaries containing the details of the
+        Load Balancers.
+
+    returns:
+        A list of strings containing the Load Balancer ARNs.
+    """
     load_balancer_arns = []
-    for load_balancer in lbs:
+    for load_balancer in load_balancers:
         load_balancer_arns.append(load_balancer["LoadBalancerArn"])
 
     return load_balancer_arns
 
 
 def get_auto_scaling_groups():
-    """Get all Auto Scaling Groups."""
+    """Get all Auto Scaling Groups.
+
+    returns:
+        A list of dictionaries containing the details of the Auto Scaling
+        Groups.
+    """
     asgs = []
 
     client = boto3.client("autoscaling")
@@ -126,7 +202,17 @@ def get_auto_scaling_groups():
 
 
 def filter_auto_scaling_groups_by_subnets(auto_scaling_groups, subnet_ids):
-    """Filter Auto Scaling Groups by vpc_subnet_ids."""
+    """Filter Auto Scaling Groups by Subnet
+
+    Args:
+        auto_scaling_groups: A list of dictionaries containing the details of
+        the Auto Scaling Groups to filter.
+        subnet_ids: A list of strings containing the Subnet Ids to filter by.
+
+    returns:
+        A list of dictionaries containing the details of the filtered Auto
+        Scaling Groups.
+    """
     filtered_asgs = []
     for asg in auto_scaling_groups:
         asg_subnet_ids = asg["VPCZoneIdentifier"].split(",")
@@ -137,7 +223,15 @@ def filter_auto_scaling_groups_by_subnets(auto_scaling_groups, subnet_ids):
 
 
 def get_target_groups(load_balancer_arns):
-    """Get all Target Groups linked to load_balancer_arns."""
+    """Get all Target Groups linked to a list of Load Balancers.
+
+    Args:
+        load_balancer_arns: A list of strings containing the Load Balancers
+        ARNs.
+
+    returns:
+        A list of dictionaries containing the details of the Target Groups.
+    """
     target_groups = []
 
     client = boto3.client("elbv2")
