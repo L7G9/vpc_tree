@@ -1,8 +1,6 @@
 # asg_tree.py
 """VPC Tree application's Auto Scale Group functionality."""
 
-import boto3
-
 from .prefix import get_prefix
 from .text_tree import add_node, add_tree
 
@@ -12,22 +10,21 @@ class ASGTree:
     structure.
 
     Attributes:
-        subnet_ids: A list of strings containing the Ids of the Subnets in a
-        Virtual Private Cloud.
+        auto_scaling_groups: A list of dictionaries containing Auto Scaling
+        Groups from Boto3.
     """
 
-    def __init__(self, subnet_ids):
+    def __init__(self, auto_scaling_groups):
         """Initializes instance.
 
         Args:
-            subnet_ids: A list of strings containing the Ids of the Subnets in
-            a Virtual Private Cloud.
+            auto_scaling_groups: A list of dictionaries containing Auto
+            Scaling Groups from Boto3.
         """
-        self.subnet_ids = subnet_ids
+        self.auto_scaling_groups = auto_scaling_groups
 
     def generate(self, text_tree, prefix_description):
-        """Generate a text based tree describing all the Auto Scaling Groups
-        linked to the Subnets in subnet_ids.
+        """Generate a text based tree describing the Auto Scaling Groups.
 
         Args:
             text_tree: A list of strings to add this subtree to.
@@ -38,33 +35,9 @@ class ASGTree:
             text_tree,
             prefix_description,
             "Auto Scaling Groups:",
-            self._filter_by_subnets(self._get_asgs(), self.subnet_ids),
+            self.auto_scaling_groups,
             self._add_asg_tree,
         )
-
-    def _get_asgs(self):
-        """Get all Auto Scaling Groups using Boto3."""
-        asgs = []
-
-        client = boto3.client("autoscaling")
-        paginator = client.get_paginator("describe_auto_scaling_groups")
-        page_iterator = paginator.paginate()
-
-        for page in page_iterator:
-            asgs += page["AutoScalingGroups"]
-
-        return asgs
-
-    def _filter_by_subnets(self, asgs, vpc_subnet_ids):
-        """Filter all Auto Scaling Groups by Subnets in the Virtual Private
-        Cloud."""
-        filtered_asgs = []
-        for asg in asgs:
-            asg_subnet_ids = asg["VPCZoneIdentifier"].split(",")
-            if any(id in vpc_subnet_ids for id in asg_subnet_ids):
-                filtered_asgs.append(asg)
-
-        return filtered_asgs
 
     def _add_asg_tree(self, text_tree, prefix_description, asg):
         """Adds tree describing Auto Scaling Group to text_tree."""
