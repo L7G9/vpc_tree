@@ -56,23 +56,29 @@ class TestSGTree:
         sg_tree_generator = SGTree(security_groups)
         text_tree = []
         sg_tree_generator.generate(text_tree, [])
-        assert len(text_tree) == 19
-        assert text_tree[0] == "Security Groups:"
-        assert text_tree[1] == "├──sg-01 : security-group-1"
-        assert text_tree[2] == "│  ├──Ingress Permissions:"
-        assert text_tree[3] == "│  │  └──tcp : 80 : 80"
-        assert text_tree[4] == "│  │     └──Security Groups:"
-        assert text_tree[5] == "│  │        └──sg-02"
-        assert text_tree[6] == "│  └──Egress Permissions:"
-        assert text_tree[7] == "│     └──All"
-        assert text_tree[8] == "│        └──IP Ranges:"
-        assert text_tree[9] == "│           └──0.0.0.0/0"
-        assert text_tree[10] == "└──sg-02 : security-group-2"
-        assert text_tree[11] == "   ├──Ingress Permissions:"
-        assert text_tree[12] == "   │  └──tcp : 80 : 80"
-        assert text_tree[13] == "   │     └──IP Ranges:"
-        assert text_tree[14] == "   │        └──0.0.0.0/0"
-        assert text_tree[15] == "   └──Egress Permissions:"
-        assert text_tree[16] == "      └──All"
-        assert text_tree[17] == "         └──IP Ranges:"
-        assert text_tree[18] == "            └──0.0.0.0/0"
+
+        expected = [
+            "Security Groups:",
+            "├──sg-01 : security-group-1",
+            "│  ├──Ingress Permissions:",
+            "│  │  └──tcp : 80 : 80",
+            "│  │     └──Security Groups:",
+            "│  │        └──sg-02",
+            "│  └──Egress Permissions:",
+            "│     └──All",
+            "│        └──IP Ranges:",
+            "│           └──0.0.0.0/0",
+            "└──sg-02 : security-group-2",
+            "   ├──Ingress Permissions:",
+            "   │  └──tcp : 80 : 80",
+            "   │     └──IP Ranges:",
+            "   │        └──0.0.0.0/0",
+            "   └──Egress Permissions:",
+            "      └──All",
+            "         └──IP Ranges:",
+            "            └──0.0.0.0/0",
+        ]
+
+        assert len(text_tree) == len(expected)
+        for i in range(len(expected)):
+            assert text_tree[i] == expected[i]
