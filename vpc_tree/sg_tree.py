@@ -1,8 +1,6 @@
 # sg_tree.py
 """VPC Tree application's Security Group functionality."""
 
-import boto3
-
 from .prefix import get_prefix
 from .text_tree import add_tree
 
@@ -15,14 +13,14 @@ class SGTree:
         vpc_id: A string containing the Id of a Virtual Private Cloud.
     """
 
-    def __init__(self, vpc_id):
+    def __init__(self, security_groups):
         """Initializes instance.
 
         Args:
-            vpc_id: A string containing the Id Virtual Private Cloud which all
-            the Security Groups should be linked to.
+            security_groups: A list of dictionaries containing Security Groups
+            from Boto3.
         """
-        self.vpc_id = vpc_id
+        self.security_groups = security_groups
 
     def generate(self, text_tree, prefix_description):
         """Generate a text based tree describing all Security Groups linked to
@@ -37,26 +35,9 @@ class SGTree:
             text_tree,
             prefix_description,
             "Security Groups:",
-            self._get_sgs(),
+            self.security_groups,
             self._add_sg_tree,
         )
-
-    def _get_sgs(self):
-        """Get all Security Groups linked to vpc_id using Boto3."""
-        sgs = []
-
-        client = boto3.client("ec2")
-        paginator = client.get_paginator("describe_security_groups")
-        parameters = {
-            "Filters": [
-                {"Name": "vpc-id", "Values": [self.vpc_id]},
-            ]
-        }
-        page_iterator = paginator.paginate(**parameters)
-        for page in page_iterator:
-            sgs += page["SecurityGroups"]
-
-        return sgs
 
     def _add_sg_tree(self, text_tree, prefix_description, sg):
         """Adds tree describing Security Group to text_tree."""
