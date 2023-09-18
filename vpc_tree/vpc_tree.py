@@ -56,9 +56,8 @@ class VPCTree:
 
         vpc_id = vpc["VpcId"]
 
-        sg_tree_generator = sg_tree.SGTree(
-            aws_resources.get_security_groups(vpc_id)
-        )
+        security_groups = aws_resources.get_security_groups(vpc_id)
+        sg_tree_generator = sg_tree.SGTree(security_groups)
         sg_tree_generator.generate(text_tree, [False])
 
         subnets = aws_resources.get_subnets(vpc_id)
@@ -86,9 +85,8 @@ class VPCTree:
         load_balancer_arns = aws_resources.get_load_balancer_arns(
             load_balancers
         )
-        tg_tree_generator = tg_tree.TGTree(
-            aws_resources.get_target_groups(load_balancer_arns)
-        )
+        target_groups = aws_resources.get_target_groups(load_balancer_arns)
+        tg_tree_generator = tg_tree.TGTree(target_groups)
         tg_tree_generator.generate(text_tree, [True])
 
         return text_tree
