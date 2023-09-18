@@ -1,0 +1,57 @@
+name: CI pipeline
+
+on:
+    push:
+      branches:
+        - main
+    pull_request:
+      branches:
+        - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11.3
+
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install coverage
+        pip install flake8
+        pip install bandit
+
+    - name: Unit Tests
+      run: coverage run -m pytest tests/
+
+    - name: Coverage Check
+      run: coverage report --fail-under=80
+
+    - name: Coverage Report
+      run: coverage html --directory=reports/htmlcov/
+
+    - name: Create coverage report artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: ./reports/htmlcov/
+
+    - name: Flake8
+      run: flake8 .
+
+    - name: Bandit
+      run: bandit -c pyproject.toml -r accounts/ age_timelines/ timelines/ tplot_site/ -f html -o reports/bandit.html
+
+    - name: Create bandit report artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: bandit-report
+        path: ./reports/bandit.html
