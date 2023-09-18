@@ -1,11 +1,14 @@
 ---
 # VPC Tree
 
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54) ![Github Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white) ![AWS](https://img.shields.io/badge/Amazon_AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
+[![CI pipeline](https://github.com/L7G9/vpc_tree/actions/workflows/main.yaml/badge.svg)](https://github.com/L7G9/vpc_tree/actions/workflows/main.yaml) [![](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) [![](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
+
 Command line app to display a VPC (Virtual Private Cloud) from AWS as a text tree on the console.
 
 ---
 
-This project has been created with Boto3, the AWS SDK for Python.  It shows how different resources in a VPC are related by displaying thier IPv4 addresses, Availability Zones, Ids and ARNs.
+This project has been created with Boto3, the AWS SDK for Python.  It shows how different resources in a VPC are related by displaying their IPv4 addresses, Availability Zones, Ids and ARNs.
 
 The current version VPC Tree displays following resources in this order...
 - VPC
@@ -36,7 +39,7 @@ The current version VPC Tree displays following resources in this order...
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - [Boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html)
 
-Clone Github repositoy and move into project dirctory.
+Clone Github repository and move into project directory.
 ```bash
 git clone https://github.com/L7G9/vpc_tree.git
 cd vpc_tree
